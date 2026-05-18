@@ -202,6 +202,13 @@
                   </a>
               </li>
               <li class="nav-item">
+                  <a href="{{ route('admin.product.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'product' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-tags"></i>
+                      <p>Product</p>
+                  </a>
+              </li>
+              <li class="nav-item">
                 <form action="{{ route('admin.logout') }}" method="POST">
                   @csrf
                   <button type="submit" class="nav-link btn btn-link">
