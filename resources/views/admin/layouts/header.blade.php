@@ -209,6 +209,20 @@
                   </a>
               </li>
               <li class="nav-item">
+                  <a href="{{ route('admin.brand.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'brand' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-tags"></i>
+                      <p>Brand</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.color.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'color' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-tags"></i>
+                      <p>Color</p>
+                  </a>
+              </li>
+              <li class="nav-item">
                 <form action="{{ route('admin.logout') }}" method="POST">
                   @csrf
                   <button type="submit" class="nav-link btn btn-link">

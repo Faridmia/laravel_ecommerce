@@ -276,7 +276,7 @@
                     >
                       <p class="text-info fs-2">
                         <svg
-                          height="32"
+                          height="32"s
                           fill="none"
                           stroke="currentColor"
                           stroke-width="1.5"

@@ -63,4 +63,6 @@ class ProductController extends Controller
         return view( 'admin.product.edit', $data );
         
     }
+
+    
 }

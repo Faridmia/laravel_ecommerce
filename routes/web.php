@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\ColorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,4 +73,21 @@ Route::middleware(['web', 'admin'])->group(function () {
     Route::get('/admin/product/edit/{id}', [ProductController::class, 'edit'])->name('admin.product.edit');
     // Route::put('/admin/product/update/{id}', [ProductController::class, 'update'])->name('admin.product.update');
     // Route::get('/admin/product/delete/{id}', [ProductController::class, 'delete'])->name('admin.product.delete');
+
+
+    Route::get('/admin/brand/list', [ BrandController::class, 'list'])->name('admin.brand.list');
+    Route::get('/admin/brand/add', [ BrandController::class, 'create'])->name('admin.brand.add');
+    Route::post('/admin/brand/store', [ BrandController::class, 'store'])->name('admin.brand.store');
+    Route::get('/admin/brand/edit/{id}', [BrandController::class, 'edit'])->name('admin.brand.edit');
+    Route::put('/admin/brand/update/{id}', [BrandController::class, 'update'])->name('admin.brand.update');
+    Route::get('/admin/brand/delete/{id}', [BrandController::class, 'delete'])->name('admin.brand.delete');
+
+
+    Route::get('/admin/color/list', [ColorController::class, 'list'])->name('admin.color.list');
+    Route::get('/admin/color/add', [ColorController::class, 'create'])->name('admin.color.add');
+    Route::post('/admin/color/store', [ColorController::class, 'store'])->name('admin.color.store');
+    Route::get('/admin/color/edit/{id}', [ColorController::class, 'edit'])->name('admin.color.edit');
+    Route::put('/admin/color/update/{id}', [ColorController::class, 'update'])->name('admin.color.update');
+    Route::get('/admin/color/delete/{id}', [ColorController::class, 'delete'])->name('admin.color.delete');
+
 });
