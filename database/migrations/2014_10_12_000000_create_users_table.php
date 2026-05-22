@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->boolean('status')->default(0);
             $table->boolean('is_admin')->default(1);
+            $table->tinyInteger('is_delete')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ColorModel;
+use Auth;
 
 class ColorController extends Controller
 {
@@ -32,7 +33,7 @@ class ColorController extends Controller
         $color->name = $request->name;
         $color->code = $request->code;
         $color->status = $request->status;
-        $color->created_by = auth::user()->id();
+        $color->created_by = auth()->id();
         $color->save();
 
         return redirect()->route('admin.color.list')

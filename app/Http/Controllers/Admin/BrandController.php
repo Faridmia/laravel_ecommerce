@@ -11,7 +11,7 @@ class BrandController extends Controller
     //
     public function list()
     {
-        $data['getRecord'] = Brand::getBrandList();
+        $data['getRecord'] = Brand::getRecord();
         $data['header_title'] = 'Brand';   
         return view('admin.brand.list', $data);
     }

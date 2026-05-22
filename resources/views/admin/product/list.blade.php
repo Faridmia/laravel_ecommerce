@@ -31,22 +31,18 @@
                                 <th>#</th>
                                 <th>Product Name</th>
                                 <th>Slug</th>
-                                <th>Meta Title</th>
-                                <th>Meta Description</th>
-                                <th>Meta Keywords</th>
+                               <th>Created By</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                         @foreach($products as $value)
+                         @foreach($getRecord as $value)
                         <tbody>
                             <tr class="align-middle">
                                 <td>{{ $value->id }}</td>
                                 <td>{{ $value->product_title }}</td>
                                 <td>{{ $value->slug }}</td>
-                                <td>{{ $value->meta_title }}</td>
-                                <td>{{ $value->meta_description }}</td>
-                                <td>{{ $value->meta_keywords }}</td>
+                                <td>{{ $value->created_by_name }}</td>
                                 <td>
                                     {{ $value->status == 0 ? 'Active' : 'Inactive' }}
                                 </td>
@@ -63,7 +59,7 @@
                         </tbody>
                         </table>
                         <div class="card-footer clearfix">
-                           
+                            {{ $getRecord->links() }}
                         </div>
                     </div>
                 </div>

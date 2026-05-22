@@ -71,8 +71,10 @@ Route::middleware(['web', 'admin'])->group(function () {
     Route::get('/admin/product/add', [ProductController::class, 'create'])->name('admin.product.add');
     Route::post('/admin/product/store', [ProductController::class, 'store'])->name('admin.product.store');
     Route::get('/admin/product/edit/{id}', [ProductController::class, 'edit'])->name('admin.product.edit');
-    // Route::put('/admin/product/update/{id}', [ProductController::class, 'update'])->name('admin.product.update');
-    // Route::get('/admin/product/delete/{id}', [ProductController::class, 'delete'])->name('admin.product.delete');
+    Route::put('/admin/product/update/{id}', [ProductController::class, 'update'])->name('admin.product.update');
+    Route::get('/admin/product/delete/{id}', [ProductController::class, 'delete'])->name('admin.product.delete');
+   Route::post('/admin/product/get-sub-category', [ProductController::class, 'getSubCategory'])
+    ->name('admin.product.get_sub_category');
 
 
     Route::get('/admin/brand/list', [ BrandController::class, 'list'])->name('admin.brand.list');

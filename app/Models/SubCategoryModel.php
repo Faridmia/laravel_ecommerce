@@ -46,4 +46,16 @@ class SubCategoryModel extends Model
             ->orderByDesc('id')
             ->paginate(5);
     }
+
+    
+    public static function getRecordSubCategory( $categoryId )
+    {
+        return self::select('sub_category.*')
+            ->join('users', 'users.id', '=', 'sub_category.created_by')
+            ->where('sub_category.status', 0 ) 
+            ->where('sub_category.is_deleted', 0)  
+            ->where('sub_category.category_id', '=', $categoryId)  
+            ->orderBy('sub_category.name', 'asc')
+            ->get();
+    }
 }

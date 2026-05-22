@@ -40,4 +40,13 @@ class Category extends Model
             ->orderBy('id', 'desc')
             ->paginate(5);
     }
+
+     public static function getCategoryActive()
+    {
+        return self::select('categories.*','users.name as created_by_name')->join('users', 'users.id', '=', 'categories.created_by')
+            ->where('categories.status', 0 ) 
+            ->where('categories.is_deleted', 0)    
+            ->orderBy('categories.name', 'asc')
+            ->get();
+    }
 }

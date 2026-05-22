@@ -15,11 +15,12 @@ return new class extends Migration
 
             $table->id();
 
-            $table->string('product_title', 255)->nullable();;
+            $table->string('product_title', 255)->nullable();
 
-            $table->string('slug', 255)->unique()->nullable();;
+            $table->string('slug', 255)->unique()->nullable();
+            $table->string('sku', 255)->nullable();
 
-            $table->unsignedBigInteger('category_id')->nullable();;
+            $table->unsignedBigInteger('category_id')->nullable();
 
             $table->unsignedBigInteger('sub_category_id')->nullable();
 

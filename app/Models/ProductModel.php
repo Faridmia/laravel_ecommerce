@@ -20,5 +20,14 @@ class ProductModel extends Model
     {
         return self::findOrFail($id);
     }
+
+    static public function getRecord()
+    {
+        return self::select('products.*', 'users.name as created_by_name')
+            ->join('users', 'users.id', '=', 'products.created_by')
+            ->where('products.is_delete', '=', 0)
+            ->orderBy('products.id', 'desc')
+            ->paginate(10);
+    }
    
 }
