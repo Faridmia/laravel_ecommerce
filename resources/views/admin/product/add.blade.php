@@ -73,11 +73,7 @@
                                     <label class="form-label">Sub Category</label>
                                     <select name="sub_category_id" class="form-select" id="changeproductsubcategory">
                                         <option value="">Select Sub Category</option>
-
-                                       
-                                            <option value="">
-                                               
-                                            </option>
+                                            
                                        
                                     </select>
                                 </div>
@@ -87,11 +83,11 @@
                                     <label class="form-label">Brand</label>
                                     <select name="brand_id" class="form-select">
                                         <option value="">Select Brand</option>
-
-                                       
-                                            <option value="">
-                                               
-                                            </option>
+                                        @foreach($brands as $brand)
+                                             <option value="{{ $brand->brand_id }}">
+                                                {{ $brand->name }}   
+                                            </option>   
+                                        @endforeach
                                        
                                     </select>
                                 </div>
@@ -128,39 +124,19 @@
 
                                     <div class="d-flex flex-wrap gap-3">
 
-                                       
-
-                                            <div class="form-check">
+                                        @foreach($colors as $color)
+                                             <div class="form-check">
                                                 <input class="form-check-input"
                                                     type="checkbox"
                                                     name="color_id[]"
-                                                    value=""
-                                                    id="color">
-
+                                                    value="{{ $color->color_id }}"
+                                                    id="color{{ $color->color_id }}">
                                                 <label class="form-check-label"
-                                                    for="color">
-
-                                                   Red
-
+                                                    for="color{{ $color->color_id }}">
+                                                   {{ $color->name }}
                                                 </label>
                                             </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input"
-                                                    type="checkbox"
-                                                    name="color_id[]"
-                                                    value=""
-                                                    id="color">
-
-                                                <label class="form-check-label"
-                                                    for="color">
-
-                                                   Black
-
-                                                </label>
-                                            </div>
-
-                                      
-
+                                        @endforeach
                                     </div>
 
                                 </div>
@@ -181,18 +157,18 @@
                                             <tbody>
                                                 <tr>
                                                     <td>
-                                                        <input type="text" name="size_name[]"
+                                                        <input type="text" name="size[100][name]"
                                                             class="form-control" placeholder="Size Name">
                                                     </td>
                                                     <td>
-                                                        <input type="text**/" name="size_price[]"
+                                                        <input type="text" name="size[100][price]"
                                                             class="form-control" placeholder="Size Price">
                                                     </td>
                                                     <td>
-                                                        <button type="button" class="btn btn-sm btn-success add-size-row">
+                                                        <button type="button" class="btn btn-sm btn-success add-size-row addsizerow">
                                                             Add
                                                         </button>
-                                                        <button type="button" class="btn btn-sm btn-danger remove-size-row">
+                                                        <button type="button" class="btn btn-sm btn-danger remove-size-row removesizerow">
                                                             Remove
                                                         </button>
                                                     </td>
@@ -208,7 +184,7 @@
                                 <div class="col-md-12 mb-3">
                                     <label class="form-label">Description</label>
                                     <textarea name="description"
-                                        class="form-control"
+                                        class="form-control ecommerc-editor"
                                         rows="5">{{ old('description') }}</textarea>
                                 </div>
 
@@ -216,7 +192,7 @@
                                 <div class="col-md-12 mb-3">
                                     <label class="form-label">Short Description</label>
                                     <textarea name="short_description"
-                                        class="form-control"
+                                        class="form-control ecommerc-editor"
                                         rows="4">{{ old('short_description') }}</textarea>
                                 </div>
 
@@ -224,7 +200,7 @@
                                 <div class="col-md-12 mb-3">
                                     <label class="form-label">Additional Information</label>
                                     <textarea name="additional_information"
-                                        class="form-control"
+                                        class="form-control ecommerc-editor"
                                         rows="4">{{ old('additional_information') }}</textarea>
                                 </div>
 
@@ -232,7 +208,7 @@
                                 <div class="col-md-12 mb-3">
                                     <label class="form-label">Shipping & Returns</label>
                                     <textarea name="shipping_returns"
-                                        class="form-control"
+                                        class="form-control ecommerc-editor"
                                         rows="5">{{ old('shipping_returns') }}</textarea>
                                 </div>
 
@@ -278,8 +254,47 @@
 
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tinymce@7.9.3/tinymce.min.js"></script>
+    
+<script>
+    tinymce.init({
+        selector: '.ecommerc-editor',
+        height: 250,
+        menubar: false,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | blocks | bold italic backcolor | ' +
+            'alignleft aligncenter alignright alignjustify | ' +
+            'bullist numlist outdent indent | removeformat | help'
+    });
+</script>
 <script>
     $(document).ready(function () {
+
+        let i = 101;
+
+        $('body').delegate('.add-size-row', 'click', function () {
+            var newRow = '<tr id="deletesize' + i + '">' +
+                '<td><input type="text" name="size[' + i + '][name]" class="form-control" placeholder="Size Name"></td>' +
+                '<td><input type="text" name="size[' + i + '][price]" class="form-control" placeholder="Size Price"></td>' +
+                '<td>' +
+                '<button type="button" class="btn btn-sm btn-success add-size-row addsizerow">Add</button> ' +
+                '<button type="button" id="deletesize' + i + '" class="btn btn-sm btn-danger remove-size-row removesizerow">Remove</button>' +
+                '</td>' +
+                '</tr>';
+                i++;
+            $('.size-table tbody').append(newRow);
+        });
+
+        // Remove Row
+        $('body').on('click', '.remove-size-row', function () {
+
+            $(this).closest('tr').remove();
+
+        });
 
         $('#changeproductcategory').on('change', function () {
 

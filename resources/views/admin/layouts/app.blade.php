@@ -98,6 +98,8 @@
     ></script>
     <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
     <script src="{{ asset('js/adminlte.js') }}"></script>
+    
+
     <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
     <script>
       const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
@@ -183,11 +185,14 @@
         },
       };
 
-      const visitors_chart = new ApexCharts(
-        document.querySelector('#visitors-chart'),
-        visitors_chart_options,
-      );
-      visitors_chart.render();
+      const visitorsChartEl = document.querySelector('#visitors-chart');
+      if (visitorsChartEl) {
+        const visitors_chart = new ApexCharts(
+          visitorsChartEl,
+          visitors_chart_options,
+        );
+        visitors_chart.render();
+      }
 
       const sales_chart_options = {
         series: [
@@ -242,11 +247,14 @@
         },
       };
 
-      const sales_chart = new ApexCharts(
-        document.querySelector('#sales-chart'),
-        sales_chart_options,
-      );
-      sales_chart.render();
+      const salesChartEl = document.querySelector('#sales-chart');
+      if (salesChartEl) {
+        const sales_chart = new ApexCharts(
+          salesChartEl,
+          sales_chart_options,
+        );
+        sales_chart.render();
+      }
     </script>
     <!--end::Script-->
   </body>

@@ -31,6 +31,16 @@ class BrandModel extends Model
             ->orderBy('brands.brand_id', 'desc')
             ->paginate(10);
     }
+
+    static public function getBrandRecordActive()
+    {
+        return self::select('brands.*')
+            ->join('users', 'users.id', '=', 'brands.created_by')
+            ->where('brands.is_delete', '=', 0)
+            ->where('brands.status', '=', 0)
+            ->orderBy('brands.name', 'asc')
+            ->get();
+    }
        
    
 }

@@ -29,5 +29,10 @@ class ProductModel extends Model
             ->orderBy('products.id', 'desc')
             ->paginate(10);
     }
+
+    public function getColors()
+    {
+        return $this->hasMany( ProductColorModel::class, 'product_id' );
+    }
    
 }

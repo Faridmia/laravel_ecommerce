@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\SubCategoryModel;
 use App\Models\BrandModel;
 use App\Models\ColorModel;
+use App\Models\ProductColorModel;
 
 
 
@@ -24,38 +25,70 @@ class ProductController extends Controller
         return view( 'admin.product.list', $data );
     }
 
+
     public function create()
     {
         $data['categories'] = Category::getCategoryActive();
         $data['subcategories'] = SubCategoryModel::all();
-        $data['brands'] = BrandModel::all();
-        $data['colors'] = ColorModel::all();
+        $data['brands'] = BrandModel::getBrandRecordActive();
+        $data['colors'] = ColorModel::getRecordActive();
         $data['header_title'] = 'Add Product';   
         return view( 'admin.product.add', $data );
+
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'product_title' => 'required',
+            'price' => 'required',
         ]);
 
         $product = new ProductModel();
-        $product->product_title = $request->product_title;
-       
-        $product->category_id = $request->category_id;
-        $product->created_by = auth()->id();
-        $product->save(); 
 
-        $slug = Str::slug($request->product_title, '-' );
-        if( ProductModel::checkSlug($slug) > 0 ) {
-            $product->slug = $slug;
-        } else {
-            $new_slug = $slug . '-' . $product->id;
-            $product->slug = $new_slug;
-        }
+        $product->product_title = $request->product_title;
+        $product->sku = $request->sku;
+        $product->category_id = $request->category_id;
+        $product->sub_category_id = $request->sub_category_id;
+        $product->brand_id = $request->brand_id;
+
+        $product->price = $request->price;
+        $product->sale_price = $request->sale_price;
+
+        $product->short_description = $request->short_description;
+        $product->description = $request->description;
+        $product->additional_information = $request->additional_information;
+        $product->shipping_returns = $request->shipping_returns;
+
+        $product->status = $request->status ?? 0;
+        $product->created_by = auth()->id();
+
         $product->save();
-        return redirect()->route('admin.product.list')->with('success', 'Product created successfully.');   
+
+        $slug = Str::slug($request->product_title);
+
+        if (ProductModel::where('slug', $slug)->exists()) {
+            $product->slug = $slug . '-' . $product->id;
+        } else {
+            $product->slug = $slug;
+        }
+
+        $product->save();
+
+        ProductColorModel::DeleteRecord($product->id);
+
+        if(!empty($request->color_id)) {
+            foreach( $request->color_id as $color_id ) {
+                $productColor = new ProductColorModel();
+                $productColor->product_id = $product->id;
+                $productColor->color_id = $color_id;
+                $productColor->save();
+            }
+        }   
+
+        return redirect()
+            ->route('admin.product.list')
+            ->with('success', 'Product created successfully.');
     }
 
     public function getSubCategory(Request $request)

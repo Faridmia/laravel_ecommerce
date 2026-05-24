@@ -28,4 +28,14 @@ class ColorModel extends Model
             ->where('colors.is_delete', '=', 0)
             ->orderBy('colors.color_id', 'desc')->paginate(10);
     }
+
+    static public function getRecordActive()
+    {
+        return self::select('colors.*')
+            ->join('users', 'users.id', '=', 'colors.created_by')
+            ->where('colors.is_delete', '=', 0)
+            ->where('colors.status', '=', 0)
+            ->orderBy('colors.color_id', 'desc')
+            ->get();
+    }
 }
