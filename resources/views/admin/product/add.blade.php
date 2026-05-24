@@ -211,11 +211,7 @@
                                         class="form-control ecommerc-editor"
                                         rows="5">{{ old('shipping_returns') }}</textarea>
                                 </div>
-
-                                
-
                             </div>
-
                             <hr/>
                             <div class="row">
                                 <!-- Status -->

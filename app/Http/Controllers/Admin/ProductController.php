@@ -11,6 +11,7 @@ use App\Models\SubCategoryModel;
 use App\Models\BrandModel;
 use App\Models\ColorModel;
 use App\Models\ProductColorModel;
+use App\Models\ProductSizeModel;
 
 
 
@@ -85,6 +86,24 @@ class ProductController extends Controller
                 $productColor->save();
             }
         }   
+
+        ProductSizeModel::DeleteRecord( $product->id );
+
+        if(!empty($request->size)) {
+            foreach( $request->size as $size ) {
+                if( empty($size['name']) && empty($size['price']) ) {
+                    continue;
+                }
+
+                $productSize = new ProductSizeModel();
+                $productSize->product_id = $product->id;
+                $productSize->name = $size['name'];
+                $productSize->price = !empty($size['price']) ? $size['price'] : 0.00;
+                $productSize->save();
+            }
+        
+        }  
+
 
         return redirect()
             ->route('admin.product.list')
