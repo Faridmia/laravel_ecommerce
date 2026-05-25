@@ -20,7 +20,7 @@
                 <div class="card card-primary card-outline mb-4">
                   <!--begin::Form-->
                   @include('admin.layouts._message')
-                  <form action="{{ route('admin.product.store') }}" method="POST">
+                  <form action="{{ route('admin.product.store') }}" method="POST" enctype="multipart/form-data">
                         {{ csrf_field() }}
 
                         <!--begin::Body-->
@@ -73,7 +73,7 @@
                                     <label class="form-label">Sub Category</label>
                                     <select name="sub_category_id" class="form-select" id="changeproductsubcategory">
                                         <option value="">Select Sub Category</option>
-                                            
+                                            <option value=""></option>
                                        
                                     </select>
                                 </div>
@@ -139,6 +139,22 @@
                                         @endforeach
                                     </div>
 
+                                </div>
+                                <!-- Image -->
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Product Images</label>
+
+                                    <input 
+                                        type="file" 
+                                        name="image[]" 
+                                        class="form-control"
+                                        id="imageInput"
+                                        multiple 
+                                        accept="image/*"
+                                    >
+
+                                    <!-- Preview Area -->
+                                    <div class="row mt-3" id="previewContainer"></div>
                                 </div>
                                 <div class="col-md-12 mb-4">
 
@@ -251,6 +267,53 @@
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tinymce@7.9.3/tinymce.min.js"></script>
+
+<script>
+    document.getElementById('imageInput').addEventListener('change', function(event) {
+
+        const previewContainer = document.getElementById('previewContainer');
+
+        previewContainer.innerHTML = '';
+
+        const files = event.target.files;
+
+        if(files.length > 0){
+
+            Array.from(files).forEach(file => {
+
+                // Only image check
+                if(!file.type.startsWith('image/')){
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function(e){
+
+                    const col = document.createElement('div');
+                    col.classList.add('col-md-2', 'mb-3');
+
+                    col.innerHTML = `
+                        <div class="border rounded p-2 text-center">
+                            <img 
+                                src="${e.target.result}" 
+                                class="img-fluid rounded"
+                                style="height:120px; object-fit:cover; width:100%;"
+                            >
+                        </div>
+                    `;
+
+                    previewContainer.appendChild(col);
+                }
+
+                reader.readAsDataURL(file);
+
+            });
+
+        }
+
+    });
+</script>
     
 <script>
     tinymce.init({
