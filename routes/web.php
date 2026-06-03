@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\ColorController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,9 +23,9 @@ use App\Http\Controllers\Admin\ColorController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+
+Route::get('/', [HomeController::class, 'home']);
 
 Route::get('/admin', [AuthController::class, 'login_admin'])->name('admin.login');
 Route::post('/admin', [AuthController::class, 'auth_login_admin']);
