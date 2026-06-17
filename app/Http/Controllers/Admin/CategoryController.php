@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Auth;
 use App\Models\Category;
+use Illuminate\Support\Str;
 class CategoryController extends Controller
 {
     public function list()
@@ -33,13 +34,14 @@ class CategoryController extends Controller
 
         $category = new Category();
         $category->name = $request->name;
-        $category->category_slug = $request->category_slug;
+        $category->category_slug = Str::slug($request->category_slug);
         $category->status = $request->status;
         $category->meta_title = $request->meta_title;
         $category->meta_description = $request->meta_description;
         $category->meta_keywords = $request->meta_keywords;
         $category->created_by = auth()->id();
         $category->save();
+
         return redirect('admin/category/list')->with('success', 'Category added successfully');
     }
 
@@ -63,7 +65,7 @@ class CategoryController extends Controller
         ]);
 
         $category->name = $request->name;
-        $category->category_slug = $request->category_slug;
+        $category->category_slug = Str::slug($request->category_slug);
         $category->status = $request->status;
         $category->meta_title = $request->meta_title;
         $category->meta_description = $request->meta_description;

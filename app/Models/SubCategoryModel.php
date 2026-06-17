@@ -40,6 +40,11 @@ class SubCategoryModel extends Model
     //     ->get();
     // }
 
+    public static function getSingleSlug( $slug )
+    {
+        return self::where('category_slug', $slug)->where('sub_category.status', 0 )->where('sub_category.is_deleted', 0)->first();
+    } 
+
     public static function getSubCategoryList()
     {
         return self::with(['creator:id,name', 'category:id,name'])

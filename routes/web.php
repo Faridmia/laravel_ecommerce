@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProductController as ProductFront;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,12 @@ use App\Http\Controllers\HomeController;
 
 
 Route::get('/', [HomeController::class, 'home']);
+
+Route::get('/wishlist', [HomeController::class, 'wishlist'])->name('wishlist');
+Route::get('/about', [HomeController::class, 'about'])->name('about');
+Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::get('/search', [ProductController::class, 'search'])->name('search');
+
 
 Route::get('/admin', [AuthController::class, 'login_admin'])->name('admin.login');
 Route::post('/admin', [AuthController::class, 'auth_login_admin']);
@@ -99,3 +106,6 @@ Route::middleware(['web', 'admin'])->group(function () {
     Route::get('/admin/color/delete/{id}', [ColorController::class, 'delete'])->name('admin.color.delete');
 
 });
+
+
+Route::get('{category?}/{subcategory?}', [ProductFront::class, 'getCategorySub']);

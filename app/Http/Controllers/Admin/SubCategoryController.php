@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Models\Category;
 use App\Models\SubCategoryModel;
+use Illuminate\Support\Str;
 class SubCategoryController extends Controller
 {
     //
@@ -17,7 +18,7 @@ class SubCategoryController extends Controller
 
     public function create()
     {
-        $data['getCategory'] = Category::getCategoryList();
+        $data['getCategory'] = Category::getCategoryAll();
         $data['header_title'] = 'Sub Category';  
         return view('admin.subcategory.add', $data);
     }
@@ -40,13 +41,12 @@ class SubCategoryController extends Controller
             $model = new SubCategoryModel;
             $model->category_id      = $request->category_id;
             $model->name             = $request->sub_category_name;
-            $model->category_slug    = $request->category_slug;
+            $model->category_slug    = Str::slug($request->category_slug);
             $model->status           = $request->status;
             $model->meta_title       = $request->meta_title;
             $model->meta_description = $request->meta_description;
             $model->meta_keywords    = $request->meta_keywords;
             $model->created_by       = Auth::user()->id;
-
             $model->save();
 
             return redirect()->route('admin.subcategory.list')
@@ -79,7 +79,7 @@ class SubCategoryController extends Controller
 
         $subcategory->category_id = $request->category_id;
         $subcategory->name = $request->sub_category_name;
-        $subcategory->category_slug = trim($request->category_slug);
+        $subcategory->category_slug = Str::slug($request->category_slug);
         $subcategory->status = $request->status;
         $subcategory->meta_title = $request->meta_title;
         $subcategory->meta_description = $request->meta_description;
