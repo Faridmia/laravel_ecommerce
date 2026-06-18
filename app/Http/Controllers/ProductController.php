@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\SubCategoryModel;
+use App\Models\ProductModel;
 class ProductController extends Controller
 {
     //
@@ -21,6 +22,8 @@ class ProductController extends Controller
             $data['meta_keywords'] = $getCategory->meta_keywords;
             $data['getCategory'] = $getCategory;
             $data['getSubCategory'] = $getSubCategory;
+
+            $data['getProduct'] = ProductModel::getProduct( $getCategory->id, $getSubCategory->id  );
             return view('product.list', $data);
         } elseif( !empty($getCategory) && empty($getSubCategory) )
         {
@@ -28,6 +31,7 @@ class ProductController extends Controller
             $data['meta_description'] = $getCategory->meta_description;
             $data['meta_keywords'] = $getCategory->meta_keywords;
             $data['getCategory'] = $getCategory;
+            $data['getProduct'] = ProductModel::getProduct( $getCategory->id  );
             return view('product.list', $data);
         }
         else
