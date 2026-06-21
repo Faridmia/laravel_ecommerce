@@ -108,4 +108,5 @@ Route::middleware(['web', 'admin'])->group(function () {
 });
 
 
+Route::post('get_filter_products_ajax', [ProductFront::class, 'getFilterProductAjax']);
 Route::get('{category?}/{subcategory?}', [ProductFront::class, 'getCategorySub']);
