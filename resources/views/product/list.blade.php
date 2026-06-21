@@ -45,8 +45,8 @@
                 				<div class="toolbox-left">
                 					<div class="toolbox-info">
                 						Showing <span>9 of 56</span> Products
-                					</div><!-- End .toolbox-info -->
-                				</div><!-- End .toolbox-left -->
+                					</div>
+                				</div>
 
                 				<div class="toolbox-right">
                 					<div class="toolbox-sort">
@@ -59,10 +59,10 @@
 												<option value="date">Date</option>
 											</select>
 										</div>
-                					</div><!-- End .toolbox-sort -->
+                					</div>
                 					
-                				</div><!-- End .toolbox-right -->
-                			</div><!-- End .toolbox -->
+                				</div>
+                			</div>
 						<div id="getProductAjax">
                         @include('product._list');
 						</div>
@@ -70,10 +70,14 @@
                 		<aside class="col-lg-3 order-lg-first">
 							<form id="filterForm" method="post" action="">
 								{{	csrf_field() }}
+								<input type="hidden" name="old_category_id" id="old_category_id" value="{{ $getCategory->id ?? '' }}">
+								<input type="hidden" name="old_subcategory_id" id="old_subcategory_id" value="{{ $getSubCategory->id ?? '' }}">
 								<input type="hidden" name="sub_category_id" id="sub_category_id">
 								<input type="hidden" name="sub_brand_id" id="sub_brand_id">
 								<input type="hidden" name="color_id" id="get_color_id">
 								<input type="hidden" name="sort_by_id" id="get_sort_by_id">
+								<input type="hidden" name="start_price" id="get_start_price">
+								<input type="hidden" name="end_price" id="get_end_price">
 							</form>
                 			<div class="sidebar sidebar-shop">
                 				<div class="widget widget-clean">
@@ -168,7 +172,7 @@
                                                     <span id="filter-price-range"></span>
                                                 </div><!-- End .filter-price-text -->
 
-                                                <div id="price-slider"></div><!-- End #price-slider -->
+                                                <div id="price-slider"></div>
                                             </div><!-- End .filter-price -->
 										</div><!-- End .widget-body -->
 									</div><!-- End .collapse -->
@@ -212,8 +216,6 @@
 
 			filterForm();
 		});
-
-
 
 		$('.changebrand').change(function(){
 			var ids = '';
@@ -262,8 +264,14 @@
 			filterForm();
 		});
 
+		var xhr;
 		function filterForm( argument ){
-			$.ajax({
+
+			if(xhr && xhr.readyState != 4){
+				xhr.abort();
+			}
+
+			xhr = $.ajax({
 				type: 'POST',
 				url: '{{ url('get_filter_products_ajax') }}',
 				data: $('#filterForm').serialize(),
@@ -276,5 +284,47 @@
 				}
 			});
 		}
+
+
+		var i = 0;
+		if ( typeof noUiSlider === 'object' ) {
+			var priceSlider  = document.getElementById('price-slider');
+
+			
+			noUiSlider.create(priceSlider, {
+				start: [ 0, 1000 ],
+				connect: true,
+				step: 1,
+				margin: 1,
+				range: {
+					'min': 0,
+					'max': 1000
+				},
+				tooltips: true,
+				format: wNumb({
+					decimals: 0,
+					prefix: '$'
+				})
+			});
+
+			// Update Price Range
+			priceSlider.noUiSlider.on('set', function(values, handle) {
+				let start_price = values[0];
+				let end_price = values[1];
+				$('#get_start_price').val(start_price);
+				$('#get_end_price').val(end_price);
+				
+				$('#filter-price-range').text(values.join(' - '));
+
+				if( i == 0 || i == 1 ){
+					i++;
+				} else {
+					filterForm();
+				}
+				
+			});
+		}
+
+
 	</script>
 @endsection

@@ -57,6 +57,14 @@ class ProductModel extends Model
             $sub_category_id_inarray = explode(',', $sub_category_id);
             $return = $return->whereIn('products.sub_category_id', $sub_category_id_inarray);
            
+        } else {
+            if(!empty(Request::get('old_category_id'))){
+                $return->where('products.category_id', Request::get('old_category_id') );
+            }
+
+            if(!empty(Request::get('old_subcategory_id'))){
+                $return->where('products.sub_category_id', Request::get('old_subcategory_id'));
+            }
         }
 
         if( !empty( Request::get('color_id') ) ){
@@ -73,6 +81,15 @@ class ProductModel extends Model
             $return = $return->whereIn('products.brand_id', $sub_brand_id_inarray);
            
         }
+
+        if( !empty(Request::get('start_price')) && !empty(Request::get('end_price')) ){
+            $start_price = str_replace('$', '', Request::get('start_price'));
+            $end_price = str_replace('$', '', Request::get('end_price'));
+            $return = $return->where('products.price', '>=', $start_price );
+            $return = $return->where('products.price', '<=', $end_price );
+        }
+    
+            
 
         return $return
             ->where('products.is_delete', 0)
