@@ -66,7 +66,10 @@
 						<div id="getProductAjax">
                         @include('product._list');
 						</div>
-                		</div><!-- End .col-lg-9 -->
+						<div class="text-center">
+							<a href="#" @if( empty($page)) style="display: none;" @endif data-page="{{ $page }}" class="btn btn-primary LoadMore text-center">Load More</a>
+						</div>
+                		</div>
                 		<aside class="col-lg-3 order-lg-first">
 							<form id="filterForm" method="post" action="">
 								{{	csrf_field() }}
@@ -278,12 +281,50 @@
 				dataType: 'json',
 				success: function(response){
 					$('#getProductAjax').html(response.success);
+					if(response.page > 0){
+						$('.LoadMore')
+							.show()
+							.attr('data-page', response.page);
+					}else{
+						$('.LoadMore')
+							.hide()
+							.attr('data-page', 0);
+					}
 				},
 				error: function(){
 					
 				}
 			});
 		}
+
+		$('body').delegate('.LoadMore', 'click', function(e){
+			e.preventDefault();
+			var page = $(this).data('page');
+
+			if(xhr && xhr.readyState != 4){
+				xhr.abort();
+			}
+
+			xhr = $.ajax({
+				type: 'POST',
+				url: "{{ url('get_filter_products_ajax') }}?page="+page,
+				data: $('#filterForm').serialize(),
+				dataType: 'json',
+				success: function(response){
+					$('#getProductAjax').append(response.success);
+									if(response.page > 0){
+						$('.LoadMore')
+							.show()
+							.attr('data-page', response.page);
+					}else{
+						$('.LoadMore').hide();
+					}
+				},
+				error: function(){
+					
+				}
+			});
+		});
 
 
 		var i = 0;

@@ -52,6 +52,6 @@
     </div><!-- End .row -->
 </div><!-- End .products -->
 
-<div class="d-flex justify-content-center">
+<!-- <div class="d-flex justify-content-center">
     {{ $getProduct->links() }}
-</div>
+</div> -->

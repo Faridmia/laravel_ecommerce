@@ -97,7 +97,7 @@ class ProductModel extends Model
             // ->groupBy('products.id')
             ->distinct()
             ->orderBy('products.id', 'desc')
-            ->paginate(12);
+            ->paginate(2);
     }
 
     public function getImageSingle($product_id)
