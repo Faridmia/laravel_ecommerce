@@ -11,17 +11,62 @@ use App\Models\BrandModel;
 class ProductController extends Controller
 {
     
+    public function getProductSearch(Request $request)
+    {
+        $data['getColor'] = ColorModel::getRecordActive();
+        $data['getBrand'] = BrandModel::getBrandRecordActive();
+      
+
+        $data['meta_title'] = "Search Product";
+        $data['meta_description'] = '';
+        $data['meta_keywords'] = '';
+      
+        $getProduct = ProductModel::getProduct(   );
+
+        $page = 0;
+        if( !empty( $getProduct->nextPageUrl() ) )
+        {
+            $parse_url = parse_url( $getProduct->nextPageUrl() );
+
+            if( !empty( $parse_url['query'] ) )
+            {
+                parse_str( $parse_url['query'], $query_array );
+                if( !empty( $query_array['page'] ) )
+                {
+                    $page = $query_array['page'];
+                }
+            }
+        } 
+
+        $data['page'] = $page;
+
+        $data['getProduct'] =  $getProduct;
+
+        return view('product.list', $data);
+    }
 
     public function getCategorySub($slug, $sub_slug = null )
     {
+
+        $getProductSingle = ProductModel::getSingleSlug( $slug );
+
         $getCategory = Category::getSingleSlug( $slug );
         $getSubCategory = SubCategoryModel::getSingleSlug( $sub_slug );
 
         $data['getColor'] = ColorModel::getRecordActive();
         $data['getBrand'] = BrandModel::getBrandRecordActive();
 
-        if( !empty($getCategory) && !empty($getSubCategory) )
-        {
+        if( !empty( $getProductSingle ) ) {
+            $data['meta_title'] = $getProductSingle->product_title;
+            $data['meta_description'] = $getProductSingle->short_description;
+
+            $data['getProduct'] =  $getProductSingle;
+
+            $data['getRelatedProduct'] = ProductModel::getRelatedProduct( $getProductSingle->id, $getProductSingle->sub_category_id );
+
+            return view( 'product.productdetails', $data );
+
+        } elseif( !empty($getCategory) && !empty($getSubCategory) ) {
             $data['meta_title'] = $getCategory->meta_title;
             $data['meta_description'] = $getCategory->meta_description;
             $data['meta_keywords'] = $getCategory->meta_keywords;
@@ -50,8 +95,7 @@ class ProductController extends Controller
             $data['getProduct'] =  $getProduct;
 
             return view('product.list', $data);
-        } elseif( !empty($getCategory)  )
-        {
+        } elseif( !empty($getCategory)  ) {
             $data['getColor'] = ColorModel::getRecordActive();
             $data['getBrand'] = BrandModel::getBrandRecordActive();
             $data['getSubCategoryFilter'] = SubCategoryModel::getRecordSubCategory( $getCategory->id );
@@ -82,13 +126,22 @@ class ProductController extends Controller
             $data['getProduct'] =  $getProduct;
 
             return view('product.list', $data);
-        }
-        else
-        {
+        } else {
             abort(404);
         }
        
       
+    }
+
+    public function shop()
+    {
+        $data['getColor'] = ColorModel::getRecordActive();
+        $data['getBrand'] = BrandModel::getBrandRecordActive();
+        $data['getProduct'] = ProductModel::getProduct();
+        $data['getSubCategoryFilter'] = Category::getCategoryActive();
+        $data['page'] = 0;
+
+        return view('product.list', $data);
     }
 
     public function getFilterProductAjax( Request $request )

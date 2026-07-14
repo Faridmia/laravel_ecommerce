@@ -17,8 +17,10 @@
         		<div class="container">
                     @if( !empty($getSubCategory) )
         			    <h1 class="page-title">{{ $getSubCategory->name }}</h1>
-                    @else
+                    @elseif( !empty($getCategory) )
         			<h1 class="page-title">{{ $getCategory->name }}</h1>
+					@else
+					<h1 class="page-title">Search for {{ Request::get('q') }}</h1>
                     @endif
         		</div><!-- End .container -->
         	</div><!-- End .page-header -->
@@ -30,12 +32,14 @@
                         @if( !empty($getSubCategory) )
                         <li class="breadcrumb-item" aria-current="page"><a href="{{ url($getCategory->category_slug) }}">{{ $getCategory->name }}</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ $getSubCategory->name }}</li>
-                        @else
+                        @elseif( !empty($getCategory) )
                         <li class="breadcrumb-item active" aria-current="page">{{ $getCategory->name }}</li>
+						@else
+						<li class="breadcrumb-item active" aria-current="page">Search: {{ Request::get('q') }}</li>
                         @endif
                     </ol>
-                </div><!-- End .container -->
-            </nav><!-- End .breadcrumb-nav -->
+                </div>
+            </nav>
 
             <div class="page-content">
                 <div class="container">
@@ -43,9 +47,17 @@
                 		<div class="col-lg-9">
                 			<div class="toolbox">
                 				<div class="toolbox-left">
-                					<div class="toolbox-info">
-                						Showing <span>9 of 56</span> Products
-                					</div>
+                					@php
+										$totalEntries = $getProduct->total();
+										$firstEntry = ($getProduct->currentPage() - 1) * $getProduct->perPage() + 1;
+										$lastEntry = $firstEntry + $getProduct->count() - 1;
+									@endphp
+
+									<div class="toolbox-info">
+										Showing
+										<span>{{ $firstEntry }} to {{ $lastEntry }} of {{ $totalEntries }}</span>
+										Products
+									</div>
                 				</div>
 
                 				<div class="toolbox-right">
@@ -73,6 +85,7 @@
                 		<aside class="col-lg-3 order-lg-first">
 							<form id="filterForm" method="post" action="">
 								{{	csrf_field() }}
+								<input type="hidden" name="q"  value="{{ !empty(Request::get('q')) ? Request::get('q') : '' }}">
 								<input type="hidden" name="old_category_id" id="old_category_id" value="{{ $getCategory->id ?? '' }}">
 								<input type="hidden" name="old_subcategory_id" id="old_subcategory_id" value="{{ $getSubCategory->id ?? '' }}">
 								<input type="hidden" name="sub_category_id" id="sub_category_id">
@@ -88,6 +101,7 @@
                 					<a href="#" class="sidebar-filter-clear">Clean All</a>
                 				</div><!-- End .widget widget-clean -->
 
+								@if( !empty($getSubCategoryFilter) )
                 				<div class="widget widget-collapsible">
     								<h3 class="widget-title">
 									    <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
@@ -114,8 +128,9 @@
 									</div><!-- End .collapse -->
         						</div><!-- End .widget -->
 
-        						
+        						@endif
 
+								@if( !empty($getColor) )
         						<div class="widget widget-collapsible">
     								<h3 class="widget-title">
 									    <a data-toggle="collapse" href="#widget-3" role="button" aria-expanded="true" aria-controls="widget-3">
@@ -135,7 +150,9 @@
 										</div><!-- End .widget-body -->
 									</div><!-- End .collapse -->
         						</div><!-- End .widget -->
+								@endif
 
+								@if( !empty($getBrand) )
         						<div class="widget widget-collapsible">
     								<h3 class="widget-title">
 									    <a data-toggle="collapse" href="#widget-4" role="button" aria-expanded="true" aria-controls="widget-4">
@@ -159,6 +176,7 @@
 										</div><!-- End .widget-body -->
 									</div><!-- End .collapse -->
         						</div><!-- End .widget -->
+								@endif
 
         						<div class="widget widget-collapsible">
     								<h3 class="widget-title">
@@ -191,9 +209,10 @@
 
 @section('script')
 	<script src="{{ asset('assets/js/nouislider.min.js') }}"></script>
-	<script>
+ 	<script>
+ 		var categoryFilterField = '{{ empty($getCategory) ? "old_category_id" : "sub_category_id" }}';
+ 		
 
-		
 
 		$('.changesortby').change(function(){
 			var ids = '';
@@ -203,7 +222,7 @@
 			filterForm();
 		});
 
-		$('.changecategory').change(function(){
+ 		$('.changecategory').change(function(){
 			var ids = '';
 			var category_id = $(this).val();
 			$('.changecategory').each(function(){
@@ -215,7 +234,7 @@
 				}
 			});
 
-			$('#sub_category_id').val(ids);
+			$('#' + categoryFilterField).val(ids);
 
 			filterForm();
 		});
@@ -238,7 +257,7 @@
 		});
 
 		// Initialize the brand filter
-		$('.changebrand').change();
+		//$('.changebrand').change();
 
 		$('.changecolor').click(function(){
 			var id = $(this).attr('id');
@@ -301,6 +320,8 @@
 			e.preventDefault();
 			var page = $(this).data('page');
 
+			$('.LoadMore').html('Loading...');
+
 			if(xhr && xhr.readyState != 4){
 				xhr.abort();
 			}
@@ -312,7 +333,8 @@
 				dataType: 'json',
 				success: function(response){
 					$('#getProductAjax').append(response.success);
-									if(response.page > 0){
+					$('.LoadMore').html('Load More');
+					if(response.page > 0){
 						$('.LoadMore')
 							.show()
 							.attr('data-page', response.page);

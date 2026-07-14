@@ -84,84 +84,79 @@
                                     </div>
 
                                     
-                                </div><!-- End .row -->
-                            </div><!-- End .megamenu megamenu-md -->
+                                </div>
+                            </div>
                         </li>
-                    </ul><!-- End .menu -->
-                </nav><!-- End .main-nav -->
-            </div><!-- End .header-left -->
+                    </ul>
+                </nav>
+            </div>
 
             <div class="header-right">
                 <div class="header-search">
                     <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
-                    <form action="{{ route('search') }}" method="get">
+                    <form action="{{ url('search') }}" method="get">
                         <div class="header-search-wrapper">
-                            <label for="q" class="sr-only">Search</label>
-                            <input type="search" class="form-control" name="q" id="q" placeholder="Search in..." required>
-                        </div><!-- End .header-search-wrapper -->
+                            <button for="q" class="sr-only">Search</button>
+                            <input type="search" value="{{ !empty(Request::get('q')) ? Request::get('q') : '' }}" class="form-control" name="q" id="q" placeholder="Search in..." required>
+                        </div>
                     </form>
-                </div><!-- End .header-search -->
+                </div>
 
                 <div class="dropdown cart-dropdown">
                     <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                         <i class="icon-shopping-cart"></i>
-                        <span class="cart-count">2</span>
+                        <span class="cart-count">{{ Cart::getTotalQuantity() }}</span>
                     </a>
-
+                    @if( !empty( Cart::getContent()->count() ) )
                     <div class="dropdown-menu dropdown-menu-right">
                         <div class="dropdown-cart-products">
-                            <div class="product">
-                                <div class="product-cart-details">
-                                    <h4 class="product-title">
-                                        <a href="product.html">Beige knitted elastic runner shoes</a>
-                                    </h4>
+                            @if(Cart::getContent()->count() > 0)
+                                @foreach (Cart::getContent() as $headerCart)
+                                @php
+                                    $getProduct = App\Models\ProductModel::getSingle($headerCart->id);
+                                    $getImage = App\Models\ProductImageModel::where('product_id', $headerCart->id)->orderBy('order_by', 'asc')->first();
+                                    $imageSrc = $getImage ? $getImage->getImagesLogo() : null;
+                                    $slug = $getProduct ? $getProduct->slug : '#';
+                                    $title = $getProduct ? $getProduct->product_title : 'Product';
+                                @endphp
+                                <div class="product">
+                                    <div class="product-cart-details">
+                                        <h4 class="product-title">
+                                            <a href="{{ url($slug) }}">{{ $title }}</a>
+                                        </h4>
 
-                                    <span class="cart-product-info">
-                                        <span class="cart-product-qty">1</span>
-                                        x $84.00
-                                    </span>
-                                </div><!-- End .product-cart-details -->
+                                        <span class="cart-product-info">
+                                            <span class="cart-product-qty">{{ $headerCart->quantity }}</span>
+                                            x ${{ number_format($headerCart->price, 2) }}
+                                        </span>
+                                    </div><!-- End .product-cart-details -->
 
-                                <figure class="product-image-container">
-                                    <a href="product.html" class="product-image">
-                                        <img src="assets/images/products/cart/product-1.jpg" alt="product">
-                                    </a>
-                                </figure>
-                                <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                            </div><!-- End .product -->
+                                    <figure class="product-image-container">
+                                        <a href="{{ url($slug) }}" class="product-image">
+                                            <img src="{{ $imageSrc ? $imageSrc : '' }}" alt="{{ $title }}">
+                                        </a>
+                                    </figure>
+                                    <a href="{{ url('cart/remove/'.$headerCart->id) }}" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
+                                </div>
 
-                            <div class="product">
-                                <div class="product-cart-details">
-                                    <h4 class="product-title">
-                                        <a href="product.html">Blue utility pinafore denim dress</a>
-                                    </h4>
-
-                                    <span class="cart-product-info">
-                                        <span class="cart-product-qty">1</span>
-                                        x $76.00
-                                    </span>
-                                </div><!-- End .product-cart-details -->
-
-                                <figure class="product-image-container">
-                                    <a href="product.html" class="product-image">
-                                        <img src="assets/images/products/cart/product-2.jpg" alt="product">
-                                    </a>
-                                </figure>
-                                <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                            </div><!-- End .product -->
-                        </div><!-- End .cart-product -->
+                                @endforeach
+                            @else
+                                <div class="product"><p class="cart-product-info">Your cart is empty.</p></div>
+                            @endif
+                        </div>
 
                         <div class="dropdown-cart-total">
                             <span>Total</span>
 
-                            <span class="cart-total-price">$160.00</span>
+                            <span class="cart-total-price">${{ number_format(Cart::getTotal(), 2) }}</span>
                         </div><!-- End .dropdown-cart-total -->
 
                         <div class="dropdown-cart-action">
-                            <a href="cart.html" class="btn btn-primary">View Cart</a>
-                            <a href="checkout.html" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
+                            <a href="{{ url('cart') }}" class="btn btn-primary">View Cart</a>
+                            <a href="{{ url('checkout') }}" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
                         </div><!-- End .dropdown-cart-total -->
-                    </div><!-- End .dropdown-menu -->
+                    </div>
+                    @endif
                 </div><!-- End .cart-dropdown -->
             </div><!-- End .header-right -->
         </div><!-- End .container -->

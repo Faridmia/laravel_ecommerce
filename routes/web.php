@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as ProductFront;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -109,4 +110,18 @@ Route::middleware(['web', 'admin'])->group(function () {
 
 
 Route::post('get_filter_products_ajax', [ProductFront::class, 'getFilterProductAjax']);
+
+Route::get('cart', [PaymentController::class, 'cart'])->name('cart');
+Route::post('product/add-to-cart', [PaymentController::class, 'addToCart']);
+Route::post('cart/update', [PaymentController::class, 'updateCart'])->name('cart.update');
+Route::get('cart/remove/{id}', [PaymentController::class, 'removeFromCart'])->name('cart.remove');
+
+Route::get('checkout', [PaymentController::class, 'checkout'])->name('checkout');
+
+Route::get('shop', [ProductFront::class, 'shop'])->name('shop');
+
 Route::get('{category?}/{subcategory?}', [ProductFront::class, 'getCategorySub']);
+
+Route::get('search', [ProductFront::class, 'getProductSearch'])->name('search');
+
+

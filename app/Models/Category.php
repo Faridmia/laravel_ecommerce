@@ -75,4 +75,12 @@ class Category extends Model
     {
         return $this->hasMany( SubCategoryModel::class, 'category_id' )->where('sub_category.status', 0)->where('sub_category.is_deleted', 0)->orderBy('sub_category.name', 'asc');
     }
+
+    public function totalProducts()
+    {
+        return ProductModel::where('category_id', $this->id)
+            ->where('is_delete', 0)
+            ->where('status', 0)
+            ->count();
+    }
 }

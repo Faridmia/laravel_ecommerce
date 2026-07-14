@@ -59,7 +59,9 @@ class ProductModel extends Model
            
         } else {
             if(!empty(Request::get('old_category_id'))){
-                $return->where('products.category_id', Request::get('old_category_id') );
+                $old_category_id = rtrim(Request::get('old_category_id'), ',');
+                $old_category_id_inarray = explode(',', $old_category_id);
+                $return->whereIn('products.category_id', $old_category_id_inarray);
             }
 
             if(!empty(Request::get('old_subcategory_id'))){
@@ -89,7 +91,9 @@ class ProductModel extends Model
             $return = $return->where('products.price', '<=', $end_price );
         }
     
-            
+        if( !empty(Request::get('q')) ){
+            $return = $return->where('products.product_title', 'like', '%'.Request::get('q').'%');
+        }
 
         return $return
             ->where('products.is_delete', 0)
@@ -97,12 +101,44 @@ class ProductModel extends Model
             // ->groupBy('products.id')
             ->distinct()
             ->orderBy('products.id', 'desc')
-            ->paginate(2);
+            ->paginate(30);
+    }
+
+    public static function getRelatedProduct( $product_id, $sub_category_id ) {
+
+        $return = ProductModel::select(
+            'products.*',
+            'users.name as created_by_name',
+            'sub_category.name as sub_category_name',
+            'sub_category.category_slug as sub_category_slug',
+            'categories.name as category_name',
+            'categories.category_slug as category_slug'
+        )
+        ->join('users', 'users.id', '=', 'products.created_by')
+        ->join('categories', 'categories.id', '=', 'products.category_id')
+        ->join('sub_category', 'sub_category.id', '=', 'products.sub_category_id')
+        ->where('products.id', '!=', $product_id )
+        ->where('products.sub_category_id', '=', $sub_category_id )
+        ->where('products.is_delete', 0)
+        ->where('products.status', 0)
+        ->distinct()
+        ->orderBy('products.id', 'desc')
+        ->limit( 10 )
+        ->get();
+
+        return $return;
     }
 
     public function getImageSingle($product_id)
     {
         return ProductImageModel::where('product_id', $product_id)->orderBy('order_by', 'asc')->first();
+    }
+
+    public static function getSingleSlug( $slug ) {
+        return self::where( 'slug', '=',$slug )
+        ->where('products.is_delete', 0)
+        ->where('products.status', 0)
+        ->first();
     }
 
     public function getColors()
@@ -119,6 +155,14 @@ class ProductModel extends Model
     {
         return $this->hasMany(ProductImageModel::class, 'product_id')
             ->orderBy('order_by', 'asc');
+    }
+
+    public function getCategory() {
+        return $this->belongsTo( Category::class, 'category_id' );
+    }
+
+    public function getSubCategory() {
+        return $this->belongsTo( SubCategoryModel::class, 'sub_category_id' );
     }
    
 }
