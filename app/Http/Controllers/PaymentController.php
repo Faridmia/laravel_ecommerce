@@ -24,6 +24,9 @@ class PaymentController extends Controller
        $getProduct = ProductModel::getSingle($request->product_id);
 
        $total = $getProduct->price;
+       if (!empty($getProduct->sale_price) && $getProduct->sale_price < $getProduct->price) {
+           $total = $getProduct->sale_price;
+       }
       
        if( !empty( $request->size_id ) )
        {

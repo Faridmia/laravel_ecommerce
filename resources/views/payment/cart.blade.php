@@ -74,6 +74,7 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                                
                             </form>
                            
                         </div><!-- End .col-lg-9 -->
