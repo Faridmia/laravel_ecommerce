@@ -22,12 +22,7 @@
         <div class="page-content">
             <div class="checkout">
                 <div class="container">
-                    <div class="checkout-discount">
-                        <form action="#">
-                            <input type="text" class="form-control"  id="checkout-discount-input">
-                            <label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
-                        </form>
-                    </div><!-- End .checkout-discount -->
+
                     <form action="#">
                         <div class="row">
                             <div class="col-lg-9">
@@ -122,9 +117,20 @@
                                                 <td>Subtotal:</td>
                                                 <td>${{ number_format(Cart::getSubTotal(), 2) }}</td>
                                             </tr><!-- End .summary-subtotal -->
+                                            <tr>
+                                                <td colspan="2" style="padding: 10px 0; border-top: none;">
+                                                    <div class="input-group" style="display: flex;">
+                                                        <input type="text" name="coupon_code" id="coupon_code" class="form-control" placeholder="Coupon Code" value="{{ !empty($coupon) ? $coupon->code : '' }}" style="height: 40px; margin-bottom: 0;">
+                                                        <div class="input-group-append">
+                                                            <button type="button" id="apply_coupon" class="btn btn-outline-primary-2" style="height: 40px; min-width: 80px; padding: 0;">Apply</button>
+                                                        </div>
+                                                    </div>
+                                                    <div id="coupon-message" style="margin-top: 5px; font-weight: 500; font-size: 1.2rem; display: none;"></div>
+                                                </td>
+                                            </tr>
                                             <tr class="summary-subtotal">
                                                 <td>Discount:</td>
-                                                <td>$0.00</td>
+                                                <td id="checkout-discount">-${{ number_format($discount, 2) }}</td>
                                             </tr><!-- End .summary-total -->
                                             <tr>
                                                 <td>Shipping:</td>
@@ -132,7 +138,7 @@
                                             </tr>
                                             <tr class="summary-total">
                                                 <td>Total:</td>
-                                                <td>${{ number_format(Cart::getTotal(), 2) }}</td>
+                                                <td id="checkout-total">${{ number_format($total, 2) }}</td>
                                             </tr><!-- End .summary-total -->
                                         </tbody>
                                     </table><!-- End .table table-summary -->
@@ -153,22 +159,22 @@
                                             </div><!-- End .collapse -->
                                         </div><!-- End .card -->
 
-                                        <div class="card">
+                                        <!-- <div class="card">
                                             <div class="card-header" id="heading-4">
                                                 <h2 class="card-title">
                                                     <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
                                                         PayPal <small class="float-right paypal-link">What is PayPal?</small>
                                                     </a>
                                                 </h2>
-                                            </div><!-- End .card-header -->
+                                            </div>
                                             <div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
                                                 <div class="card-body">
                                                     Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum.
-                                                </div><!-- End .card-body -->
-                                            </div><!-- End .collapse -->
-                                        </div><!-- End .card -->
+                                                </div>
+                                            </div>
+                                        </div> -->
 
-                                        <div class="card">
+                                        <!-- <div class="card">
                                             <div class="card-header" id="heading-5">
                                                 <h2 class="card-title">
                                                     <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
@@ -176,13 +182,13 @@
                                                         <img src="assets/images/payments-summary.png" alt="payments cards">
                                                     </a>
                                                 </h2>
-                                            </div><!-- End .card-header -->
+                                            </div>
                                             <div id="collapse-5" class="collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
                                                 <div class="card-body"> Donec nec justo eget felis facilisis fermentum.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Lorem ipsum dolor sit ame.
-                                                </div><!-- End .card-body -->
-                                            </div><!-- End .collapse -->
-                                        </div><!-- End .card -->
-                                    </div><!-- End .accordion -->
+                                                </div>
+                                            </div>
+                                        </div> -->
+                                    </div>
 
                                     <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
                                         <span class="btn-text">Place Order</span>
@@ -199,4 +205,40 @@
 
 @endsection
 @section('script')
+<script>
+    $(document).ready(function() {
+        $('#apply_coupon').on('click', function() {
+            let couponCode = $('#coupon_code').val().trim();
+            let $messageDiv = $('#coupon-message');
+            
+            if (couponCode === '') {
+                $messageDiv.text('Please enter a coupon code.').css('color', 'red').show();
+                return;
+            }
+            
+            $.ajax({
+                url: "{{ route('coupon.apply') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    coupon_code: couponCode
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        $messageDiv.text(response.message).css('color', 'green').show();
+                        $('#checkout-discount').text('-$' + response.discount);
+                        $('#checkout-total').text('$' + response.total);
+                    } else {
+                        $messageDiv.text(response.message).css('color', 'red').show();
+                    }
+                },
+                error: function(xhr) {
+                    console.error("Coupon apply error:", xhr);
+                    $messageDiv.text('An error occurred. Please try again.').css('color', 'red').show();
+                }
+            });
+        });
+    });
+</script>
 @endsection

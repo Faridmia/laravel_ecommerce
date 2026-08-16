@@ -26,7 +26,7 @@
                     <div class="row">
                         <div class="col-lg-9">
                            
-                            <form action="{{ url('cart/update') }}" method="POST">
+                            <form action="{{ url('cart/update') }}" method="POST" id="cartForm">
                                 @csrf
                                 <table class="table table-cart table-mobile">
                                     <thead>
@@ -65,7 +65,7 @@
                                             <td class="price-col">${{ number_format($item->price, 2) }}</td>
                                             <td class="quantity-col">
                                                 <div class="cart-product-quantity">
-                                                    <input type="number" name="qty[{{ $item->id }}]" class="form-control" value="{{ $item->quantity }}" min="1" max="100" step="1" data-decimals="0" required>
+                                                    <input type="number" name="qty[{{ $item->id }}]" class="form-control cart-qty-input" data-price="{{ $item->price }}" data-id="{{ $item->id }}" value="{{ $item->quantity }}" min="1" max="100" step="1" data-decimals="0" required>
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
                                             <td class="total-col">${{ number_format($item->price * $item->quantity, 2) }}</td>
@@ -86,11 +86,11 @@
                                     <tbody>
                                         <tr class="summary-subtotal">
                                             <td>Subtotal:</td>
-                                            <td>${{ number_format(Cart::getSubTotal(), 2) }}</td>
+                                            <td id="cart-subtotal">${{ number_format(Cart::getSubTotal(), 2) }}</td>
                                         </tr><!-- End .summary-subtotal -->
                                         <tr class="summary-total">
                                             <td>Total:</td>
-                                            <td>${{ number_format(Cart::getTotal(), 2) }}</td>
+                                            <td id="cart-total">${{ number_format(Cart::getTotal(), 2) }}</td>
                                         </tr><!-- End .summary-total -->
                                     </tbody>
                                 </table><!-- End .table table-summary -->
@@ -114,4 +114,47 @@
 
 @endsection
 @section('script')
+<script>
+    $(document).ready(function() {
+        // Listen to change event on cart quantity input spinner
+        $('body').on('change', '.cart-qty-input', function() {
+            let $input = $(this);
+            let price = parseFloat($input.data('price')) || 0;
+            let qty = parseInt($input.val()) || 1;
+            let rowTotal = price * qty;
+            
+            // Update individual row total immediately in UI
+            $input.closest('tr').find('.total-col').text('$' + rowTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            
+            // Perform AJAX update to update session cart
+            $.ajax({
+                url: "{{ url('cart/update') }}",
+                method: "POST",
+                data: $('#cartForm').serialize(),
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        $('#cart-subtotal').text('$' + response.subtotal);
+                        $('#cart-total').text('$' + response.total);
+                        
+                        // Update cart count and total in header if elements exist
+                        if ($('.cart-count').length) {
+                            let totalCount = 0;
+                            $.each(response.cart_content, function(key, item) {
+                                totalCount += parseInt(item.quantity);
+                            });
+                            $('.cart-count').text(totalCount);
+                        }
+                        if ($('.cart-total-price').length) {
+                            $('.cart-total-price').text('$' + response.total);
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    console.error("Cart update error:", xhr);
+                }
+            });
+        });
+    });
+</script>
 @endsection

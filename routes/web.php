@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\ColorController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as ProductFront;
 use App\Http\Controllers\PaymentController;
@@ -106,6 +107,14 @@ Route::middleware(['web', 'admin'])->group(function () {
     Route::put('/admin/color/update/{id}', [ColorController::class, 'update'])->name('admin.color.update');
     Route::get('/admin/color/delete/{id}', [ColorController::class, 'delete'])->name('admin.color.delete');
 
+    // coupon routes
+    Route::get('/admin/coupon/list', [CouponController::class, 'list'])->name('admin.coupon.list');
+    Route::get('/admin/coupon/add', [CouponController::class, 'create'])->name('admin.coupon.add');
+    Route::post('/admin/coupon/store', [CouponController::class, 'store'])->name('admin.coupon.store');
+    Route::get('/admin/coupon/edit/{id}', [CouponController::class, 'edit'])->name('admin.coupon.edit');
+    Route::put('/admin/coupon/update/{id}', [CouponController::class, 'update'])->name('admin.coupon.update');
+    Route::get('/admin/coupon/delete/{id}', [CouponController::class, 'delete'])->name('admin.coupon.delete');
+
 });
 
 
@@ -117,6 +126,7 @@ Route::post('cart/update', [PaymentController::class, 'updateCart'])->name('cart
 Route::get('cart/remove/{id}', [PaymentController::class, 'removeFromCart'])->name('cart.remove');
 
 Route::get('checkout', [PaymentController::class, 'checkout'])->name('checkout');
+Route::post('coupon/apply', [PaymentController::class, 'applyCoupon'])->name('coupon.apply');
 
 Route::get('shop', [ProductFront::class, 'shop'])->name('shop');
 
