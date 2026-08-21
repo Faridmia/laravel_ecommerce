@@ -15,6 +15,7 @@ class PaymentController extends Controller
     {
         if (Cart::getContent()->isEmpty()) {
             session()->forget('coupon');
+            session()->forget('shipping_rate');
         }
         $data['meta_title'] = "Cart";
         $data['meta_description'] = '';
@@ -90,6 +91,7 @@ class PaymentController extends Controller
         if (Cart::getContent()->isEmpty()) {
             session()->forget('coupon');
         }
+        session()->forget('shipping_rate');
 
         return redirect()->back();
     }
@@ -98,6 +100,7 @@ class PaymentController extends Controller
     {
         if (Cart::getContent()->isEmpty()) {
             session()->forget('coupon');
+            session()->forget('shipping_rate');
             return redirect('cart');
         }
 
@@ -124,9 +127,15 @@ class PaymentController extends Controller
             }
         }
         
+        $shippingRate = session()->get('shipping_rate');
+        $shippingCharge = $shippingRate ? floatval($shippingRate['charge']) : 0;
+
+        $data['countries'] = \App\Models\Country::orderBy('name', 'asc')->get();
         $data['discount'] = $discount;
         $data['coupon'] = $coupon;
-        $data['total'] = Cart::getSubTotal() - $discount;
+        $data['shippingRate'] = $shippingRate;
+        $data['shippingCharge'] = $shippingCharge;
+        $data['total'] = Cart::getSubTotal() - $discount + $shippingCharge;
         
         return view('payment.checkout', $data);
     }
@@ -201,7 +210,9 @@ class PaymentController extends Controller
             $discount = $coupon->discount_value;
         }
 
-        $total = $subtotal - $discount;
+        $shippingRate = session()->get('shipping_rate');
+        $shippingCharge = $shippingRate ? floatval($shippingRate['charge']) : 0;
+        $total = $subtotal - $discount + $shippingCharge;
 
         return response()->json([
             'status' => true,
@@ -210,5 +221,224 @@ class PaymentController extends Controller
             'total' => number_format($total, 2),
             'coupon_code' => $coupon->code
         ]);
+    }
+
+    public function placeOrder(Request $request)
+    {
+        if (Cart::getContent()->isEmpty()) {
+            return redirect('cart')->withErrors(['cart_empty' => 'Your cart is empty.']);
+        }
+
+        $guestCheckoutSetting = \App\Models\Setting::get('guest_checkout', 'yes');
+        $accountCreationSetting = \App\Models\Setting::get('account_creation', 'yes');
+        $shippingDestinationSetting = \App\Models\Setting::get('shipping_destination', 'billing_default');
+
+        $rules = [
+            'billing_first_name' => 'required|string|max:255',
+            'billing_last_name' => 'required|string|max:255',
+            'billing_company' => 'nullable|string|max:255',
+            'billing_country_id' => 'required|exists:countries,id',
+            'billing_address_1' => 'required|string|max:255',
+            'billing_address_2' => 'nullable|string|max:255',
+            'billing_postcode' => 'required|string|max:20',
+            'billing_phone' => 'required|string|max:30',
+            'shipping_rate_id' => 'required|exists:shipping_rates,id',
+            'payment_method' => 'required|string|in:cod',
+            'order_notes' => 'nullable|string',
+        ];
+
+        $billingCountry = \App\Models\Country::find($request->billing_country_id);
+        $isBillingBD = $billingCountry && $billingCountry->code === 'BD';
+        if ($isBillingBD) {
+            $rules['billing_division_id'] = 'required|exists:divisions,id';
+            $rules['billing_district_id'] = 'required|exists:districts,id';
+            $rules['billing_area_id'] = 'nullable|exists:areas,id';
+        } else {
+            $rules['billing_city'] = 'required|string|max:255';
+            $rules['billing_state'] = 'required|string|max:255';
+        }
+
+        if (!auth()->check()) {
+            if ($guestCheckoutSetting === 'no') {
+                $rules['billing_email'] = 'required|email|max:255|unique:users,email';
+                $rules['password'] = 'required|string|min:6';
+            } elseif ($accountCreationSetting === 'yes' && $request->has('create_account')) {
+                $rules['billing_email'] = 'required|email|max:255|unique:users,email';
+                $rules['password'] = 'required|string|min:6';
+            } else {
+                $rules['billing_email'] = 'required|email|max:255';
+            }
+        } else {
+            $rules['billing_email'] = 'required|email|max:255';
+        }
+
+        $shipToDifferent = ($shippingDestinationSetting !== 'billing_only') && $request->has('ship_to_different_address');
+        if ($shipToDifferent) {
+            $rules['shipping_first_name'] = 'required|string|max:255';
+            $rules['shipping_last_name'] = 'required|string|max:255';
+            $rules['shipping_company'] = 'nullable|string|max:255';
+            $rules['shipping_country_id'] = 'required|exists:countries,id';
+            $rules['shipping_address_1'] = 'required|string|max:255';
+            $rules['shipping_address_2'] = 'nullable|string|max:255';
+            $rules['shipping_postcode'] = 'required|string|max:20';
+            $rules['shipping_phone'] = 'nullable|string|max:30';
+
+            $shippingCountry = \App\Models\Country::find($request->shipping_country_id);
+            $isShippingBD = $shippingCountry && $shippingCountry->code === 'BD';
+            if ($isShippingBD) {
+                $rules['shipping_division_id'] = 'required|exists:divisions,id';
+                $rules['shipping_district_id'] = 'required|exists:districts,id';
+                $rules['shipping_area_id'] = 'nullable|exists:areas,id';
+            } else {
+                $rules['shipping_city'] = 'required|string|max:255';
+                $rules['shipping_state'] = 'required|string|max:255';
+            }
+        }
+
+        $request->validate($rules);
+
+        if (!auth()->check()) {
+            if ($guestCheckoutSetting === 'no' || ($accountCreationSetting === 'yes' && $request->has('create_account'))) {
+                $user = new \App\Models\User();
+                $user->name = trim($request->billing_first_name) . ' ' . trim($request->billing_last_name);
+                $user->email = trim($request->billing_email);
+                $user->password = \Hash::make($request->password);
+                $user->is_admin = 0;
+                $user->status = 0;
+                $user->is_delete = 0;
+                $user->save();
+
+                \Auth::login($user);
+            }
+        }
+
+        $subtotal = Cart::getSubTotal();
+        $discount = 0;
+        $coupon = session()->get('coupon');
+        if ($coupon) {
+            if ($subtotal >= $coupon->minimum_order_amount) {
+                if ($coupon->discount_type == 'percentage') {
+                    $discount = ($subtotal * $coupon->discount_value) / 100;
+                    if (!empty($coupon->maximum_discount) && $discount > $coupon->maximum_discount) {
+                        $discount = $coupon->maximum_discount;
+                    }
+                } else {
+                    $discount = $coupon->discount_value;
+                }
+            } else {
+                $coupon = null;
+            }
+        }
+
+        $shippingRate = \App\Models\ShippingRate::find($request->shipping_rate_id);
+        $shippingCharge = $shippingRate ? floatval($shippingRate->charge) : 0;
+        $total = $subtotal - $discount + $shippingCharge;
+
+        $order = new \App\Models\Order();
+        $order->order_number = 'ORD-' . date('Ymd') . '-' . rand(1000, 9999);
+        $order->user_id = auth()->check() ? auth()->id() : null;
+        $order->subtotal = $subtotal;
+        $order->discount = $discount;
+        $order->shipping_charge = $shippingCharge;
+        $order->total = $total;
+        $order->payment_method = $request->payment_method;
+        $order->payment_status = 'pending';
+        $order->status = 'pending';
+        $order->coupon_code = $coupon ? $coupon->code : null;
+        $order->order_notes = $request->order_notes;
+
+        $order->billing_first_name = $request->billing_first_name;
+        $order->billing_last_name = $request->billing_last_name;
+        $order->billing_company = $request->billing_company;
+        $order->billing_country_id = $request->billing_country_id;
+        if ($isBillingBD) {
+            $order->billing_division_id = $request->billing_division_id;
+            $order->billing_district_id = $request->billing_district_id;
+            $order->billing_area_id = $request->billing_area_id;
+        } else {
+            $order->billing_city = $request->billing_city;
+            $order->billing_state = $request->billing_state;
+        }
+        $order->billing_address_1 = $request->billing_address_1;
+        $order->billing_address_2 = $request->billing_address_2;
+        $order->billing_postcode = $request->billing_postcode;
+        $order->billing_phone = $request->billing_phone;
+        $order->billing_email = $request->billing_email;
+
+        if ($shipToDifferent) {
+            $order->shipping_first_name = $request->shipping_first_name;
+            $order->shipping_last_name = $request->shipping_last_name;
+            $order->shipping_company = $request->shipping_company;
+            $order->shipping_country_id = $request->shipping_country_id;
+            if ($isShippingBD) {
+                $order->shipping_division_id = $request->shipping_division_id;
+                $order->shipping_district_id = $request->shipping_district_id;
+                $order->shipping_area_id = $request->shipping_area_id;
+            } else {
+                $order->shipping_city = $request->shipping_city;
+                $order->shipping_state = $request->shipping_state;
+            }
+            $order->shipping_address_1 = $request->shipping_address_1;
+            $order->shipping_address_2 = $request->shipping_address_2;
+            $order->shipping_postcode = $request->shipping_postcode;
+            $order->shipping_phone = $request->shipping_phone;
+        } else {
+            $order->shipping_first_name = $request->billing_first_name;
+            $order->shipping_last_name = $request->billing_last_name;
+            $order->shipping_company = $request->billing_company;
+            $order->shipping_country_id = $request->billing_country_id;
+            if ($isBillingBD) {
+                $order->shipping_division_id = $request->billing_division_id;
+                $order->shipping_district_id = $request->billing_district_id;
+                $order->shipping_area_id = $request->billing_area_id;
+            } else {
+                $order->shipping_city = $request->billing_city;
+                $order->shipping_state = $request->billing_state;
+            }
+            $order->shipping_address_1 = $request->billing_address_1;
+            $order->shipping_address_2 = $request->billing_address_2;
+            $order->shipping_postcode = $request->billing_postcode;
+            $order->shipping_phone = $request->billing_phone;
+        }
+
+        $order->save();
+
+        if ($coupon) {
+            $couponModel = \App\Models\CouponModel::find($coupon->id);
+            if ($couponModel) {
+                $couponModel->increment('usage_count');
+            }
+        }
+
+        foreach (Cart::getContent() as $item) {
+            $orderItem = new \App\Models\OrderItem();
+            $orderItem->order_id = $order->id;
+            $orderItem->product_id = $item->id;
+            $orderItem->product_name = $item->name;
+            $orderItem->price = $item->price;
+            $orderItem->quantity = $item->quantity;
+            $orderItem->size_id = isset($item->attributes['size_id']) ? $item->attributes['size_id'] : 0;
+            $orderItem->color_id = isset($item->attributes['color_id']) ? $item->attributes['color_id'] : 0;
+            $orderItem->total = $item->price * $item->quantity;
+            $orderItem->save();
+        }
+
+        Cart::clear();
+        session()->forget('coupon');
+        session()->forget('shipping_rate');
+
+        return redirect()->route('checkout.success', $order->id)->with('success', 'Thank you! Your order has been placed successfully.');
+    }
+
+    public function orderSuccess($id)
+    {
+        $order = \App\Models\Order::with(['items', 'billingCountry', 'billingDivision', 'billingDistrict', 'billingArea', 'shippingCountry', 'shippingDivision', 'shippingDistrict', 'shippingArea'])->findOrFail($id);
+
+        $data['meta_title'] = "Order Success";
+        $data['meta_description'] = '';
+        $data['meta_keywords'] = '';
+        $data['order'] = $order;
+
+        return view('payment.order_success', $data);
     }
 }

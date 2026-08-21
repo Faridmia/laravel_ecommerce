@@ -27,10 +27,16 @@
                         <a href="#">Links</a>
                         <ul>
                             <li><a href="tel:#"><i class="icon-phone"></i>Call: +0123 456 789</a></li>
-                            <li><a href="{{ route('wishlist') }}"><i class="icon-heart-o"></i>My Wishlist <span>(3)</span></a></li>
+                            <li><a href="{{ route('wishlist') }}"><i class="icon-heart-o"></i>My Wishlist <span>({{ auth()->check() ? \App\Models\WishlistModel::where('user_id', auth()->id())->count() : 0 }})</span></a></li>
+                            <li><a href="{{ route('compare') }}"><i class="icon-random"></i>Compare <span>({{ count(session()->get('compare', [])) }})</span></a></li>
                             <li><a href="{{ route('about') }}">About Us</a></li>
                             <li><a href="{{ route('contact') }}">Contact Us</a></li>
-                            <li><a href="#signin-modal" data-toggle="modal"><i class="icon-user"></i>Login</a></li>
+                            @if(auth()->check())
+                                <li><a href="{{ route('user.dashboard') }}"><i class="icon-user"></i>{{ auth()->user()->name }}</a></li>
+                                <li><a href="{{ route('user.logout') }}"><i class="icon-user"></i>Logout</a></li>
+                            @else
+                                <li><a href="#signin-modal" data-toggle="modal"><i class="icon-user"></i>Login</a></li>
+                            @endif
                         </ul>
                     </li>
                 </ul><!-- End .top-menu -->

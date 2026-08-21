@@ -164,5 +164,19 @@ class ProductModel extends Model
     public function getSubCategory() {
         return $this->belongsTo( SubCategoryModel::class, 'sub_category_id' );
     }
-   
+
+    public function reviews()
+    {
+        return $this->hasMany(ProductReviewModel::class, 'product_id')->where('status', 1);
+    }
+
+    public function getAvgRating()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    public function getReviewsCount()
+    {
+        return $this->reviews()->count();
+    }
 }

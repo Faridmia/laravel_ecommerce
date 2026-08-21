@@ -64,6 +64,27 @@ class ProductController extends Controller
 
             $data['getRelatedProduct'] = ProductModel::getRelatedProduct( $getProductSingle->id, $getProductSingle->sub_category_id );
 
+            // Fetch product reviews and averages
+            $data['reviews'] = \App\Models\ProductReviewModel::where('product_id', $getProductSingle->id)
+                ->where('status', 1)
+                ->orderBy('id', 'desc')
+                ->get();
+            $data['avgRating'] = \App\Models\ProductReviewModel::where('product_id', $getProductSingle->id)
+                ->where('status', 1)
+                ->avg('rating') ?? 0;
+            $data['reviewsCount'] = $data['reviews']->count();
+
+            // Check if logged in user has purchased the product
+            $data['userHasPurchased'] = false;
+            if (auth()->check()) {
+                $data['userHasPurchased'] = \DB::table('orders')
+                    ->join('order_items', 'order_items.order_id', '=', 'orders.id')
+                    ->where('orders.user_id', auth()->id())
+                    ->where('order_items.product_id', $getProductSingle->id)
+                    ->where('orders.status', '!=', 'cancelled')
+                    ->exists();
+            }
+
             return view( 'product.productdetails', $data );
 
         } elseif( !empty($getCategory) && !empty($getSubCategory) ) {
@@ -172,5 +193,48 @@ class ProductController extends Controller
                 'getProduct' => $getProduct
             ])->render(),
         ], 200 );
+    }
+
+    public function submitReview(Request $request)
+    {
+        if (!auth()->check()) {
+            return redirect()->back()->withErrors([
+                'review' => 'You must be logged in to leave a review.'
+            ]);
+        }
+
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'review' => 'required|string|min:5',
+        ]);
+
+        // Verify if user has actually purchased the product
+        $hasPurchased = \DB::table('orders')
+            ->join('order_items', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.user_id', auth()->id())
+            ->where('order_items.product_id', $request->product_id)
+            ->where('orders.status', '!=', 'cancelled')
+            ->exists();
+
+        if (!$hasPurchased) {
+            return redirect()->back()->withErrors([
+                'review' => 'Only customers who have purchased this product can leave a review.'
+            ])->withInput();
+        }
+
+        $review = new \App\Models\ProductReviewModel();
+        $review->product_id = $request->product_id;
+        $review->rating = $request->rating;
+        $review->review = trim($request->review);
+
+        $user = auth()->user();
+        $review->user_id = $user->id;
+        $review->name = $user->name;
+        $review->email = $user->email;
+
+        $review->save();
+
+        return redirect()->back()->with('success', 'Thank you! Your review has been submitted successfully.');
     }
 }

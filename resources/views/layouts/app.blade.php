@@ -72,15 +72,21 @@
                             </ul>
                             <div class="tab-content" id="tab-content-5">
                                 <div class="tab-pane fade show active" id="signin" role="tabpanel" aria-labelledby="signin-tab">
-                                    <form action="#">
+                                    <form action="{{ route('user.login') }}" method="POST">
+                                        @csrf
+                                        @if($errors->has('login_error'))
+                                            <div class="alert alert-danger p-2" style="font-size: 1.2rem; margin-bottom: 15px;">
+                                                {{ $errors->first('login_error') }}
+                                            </div>
+                                        @endif
                                         <div class="form-group">
-                                            <label for="singin-email">Username or email address *</label>
-                                            <input type="text" class="form-control" id="singin-email" name="singin-email" required>
+                                            <label for="singin-email">Email address *</label>
+                                            <input type="email" class="form-control" id="singin-email" name="email" value="{{ old('email') }}" required>
                                         </div><!-- End .form-group -->
 
                                         <div class="form-group">
                                             <label for="singin-password">Password *</label>
-                                            <input type="password" class="form-control" id="singin-password" name="singin-password" required>
+                                            <input type="password" class="form-control" id="singin-password" name="password" required>
                                         </div><!-- End .form-group -->
 
                                         <div class="form-footer">
@@ -90,7 +96,7 @@
                                             </button>
 
                                             <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="signin-remember">
+                                                <input type="checkbox" class="custom-control-input" id="signin-remember" name="remember">
                                                 <label class="custom-control-label" for="signin-remember">Remember Me</label>
                                             </div><!-- End .custom-checkbox -->
 
@@ -101,13 +107,13 @@
                                         <p class="text-center">or sign in with</p>
                                         <div class="row">
                                             <div class="col-sm-6">
-                                                <a href="#" class="btn btn-login btn-g">
+                                                <a href="{{ route('auth.google') }}" class="btn btn-login btn-g">
                                                     <i class="icon-google"></i>
                                                     Login With Google
                                                 </a>
                                             </div><!-- End .col-6 -->
                                             <div class="col-sm-6">
-                                                <a href="#" class="btn btn-login btn-f">
+                                                <a href="{{ route('auth.facebook') }}" class="btn btn-login btn-f">
                                                     <i class="icon-facebook-f"></i>
                                                     Login With Facebook
                                                 </a>
@@ -116,15 +122,29 @@
                                     </div><!-- End .form-choice -->
                                 </div><!-- .End .tab-pane -->
                                 <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
-                                    <form action="#">
+                                    <form action="{{ route('user.register') }}" method="POST">
+                                        @csrf
+                                        @if($errors->any() && !$errors->has('login_error'))
+                                            <div class="alert alert-danger p-2" style="font-size: 1.2rem; margin-bottom: 15px;">
+                                                <ul style="margin: 0; padding-left: 15px;">
+                                                    @foreach($errors->all() as $error)
+                                                        <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endif
                                         <div class="form-group">
-                                            <label for="register-email">Your email address *</label>
-                                            <input type="email" class="form-control" id="register-email" name="register-email" required>
+                                            <label for="register-name">Name *</label>
+                                            <input type="text" class="form-control" id="register-name" name="name" value="{{ old('name') }}" required>
+                                        </div><!-- End .form-group -->
+                                        <div class="form-group">
+                                            <label for="register-email">E-mail address *</label>
+                                            <input type="email" class="form-control" id="register-email" name="email" value="{{ old('email') }}" required>
                                         </div><!-- End .form-group -->
 
                                         <div class="form-group">
                                             <label for="register-password">Password *</label>
-                                            <input type="password" class="form-control" id="register-password" name="register-password" required>
+                                            <input type="password" class="form-control" id="register-password" name="password" required>
                                         </div><!-- End .form-group -->
 
                                         <div class="form-footer">
@@ -193,6 +213,16 @@
     <script src="{{ asset('assets/js/jquery.magnific-popup.min.js') }}"></script>
    
     @yield('script')
+    @if($errors->any())
+        <script>
+            $(document).ready(function() {
+                $('#signin-modal').modal('show');
+                @if(!$errors->has('login_error'))
+                    $('#register-tab').tab('show');
+                @endif
+            });
+        </script>
+    @endif
     <script src="{{ asset('assets/js/main.js') }}"></script>
 </body>
 

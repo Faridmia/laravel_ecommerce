@@ -23,8 +23,13 @@
                         @endif
                     </a>
 
+                    @php
+                        $isInWishlist = auth()->check() ? \App\Models\WishlistModel::where('user_id', auth()->id())->where('product_id', $product->id)->exists() : false;
+                        $isInCompare = in_array($product->id, session()->get('compare', []));
+                    @endphp
                     <div class="product-action-vertical">
-                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                        <a href="{{ route('wishlist.add', $product->id) }}" class="btn-product-icon btn-wishlist btn-expandable" {!! $isInWishlist ? 'style="background-color: #c96 !important; color: #fff !important;"' : '' !!}><span>add to wishlist</span></a>
+                        <a href="{{ route('compare.add', $product->id) }}" class="btn-product-icon btn-compare" title="Compare product" style="display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; margin-top: 5px; border: 1px solid #ebebeb; {!! $isInCompare ? 'background-color: #c96 !important; color: #fff !important;' : 'background-color: #fff !important; color: #666 !important;' !!}"><span>Compare</span></a>
                     </div>
                 </figure>
 
@@ -36,11 +41,15 @@
                     <div class="product-price">
                         ${{number_format($product->price, 2)}}
                     </div>
+                    @php
+                        $listAvgRating = $product->getAvgRating();
+                        $listReviewsCount = $product->getReviewsCount();
+                    @endphp
                     <div class="ratings-container">
                         <div class="ratings">
-                            <div class="ratings-val" style="width: 20%;"></div>
+                            <div class="ratings-val" style="width: {{ $listAvgRating * 20 }}%;"></div>
                         </div>
-                        <span class="ratings-text">( 2 Reviews )</span>
+                        <span class="ratings-text">( {{ $listReviewsCount }} {{ $listReviewsCount == 1 ? 'Review' : 'Reviews' }} )</span>
                     </div>
 
                     

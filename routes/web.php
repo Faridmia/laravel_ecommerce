@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\ShippingZoneController;
+use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as ProductFront;
 use App\Http\Controllers\PaymentController;
@@ -30,9 +32,9 @@ use App\Http\Controllers\PaymentController;
 
 Route::get('/', [HomeController::class, 'home']);
 
-Route::get('/wishlist', [HomeController::class, 'wishlist'])->name('wishlist');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::post('/contact', [HomeController::class, 'submitContact'])->name('contact.submit');
 Route::get('/search', [ProductController::class, 'search'])->name('search');
 
 
@@ -115,6 +117,35 @@ Route::middleware(['web', 'admin'])->group(function () {
     Route::put('/admin/coupon/update/{id}', [CouponController::class, 'update'])->name('admin.coupon.update');
     Route::get('/admin/coupon/delete/{id}', [CouponController::class, 'delete'])->name('admin.coupon.delete');
 
+    // shipping zones & locations
+    Route::get('/admin/shipping/zones', [ShippingZoneController::class, 'list'])->name('admin.shipping.zones.list');
+    Route::get('/admin/shipping/zones/add', [ShippingZoneController::class, 'create'])->name('admin.shipping.zones.add');
+    Route::post('/admin/shipping/zones/store', [ShippingZoneController::class, 'store'])->name('admin.shipping.zones.store');
+    Route::get('/admin/shipping/zones/edit/{id}', [ShippingZoneController::class, 'edit'])->name('admin.shipping.zones.edit');
+    Route::put('/admin/shipping/zones/update/{id}', [ShippingZoneController::class, 'update'])->name('admin.shipping.zones.update');
+    Route::get('/admin/shipping/zones/delete/{id}', [ShippingZoneController::class, 'delete'])->name('admin.shipping.zones.delete');
+    Route::get('/admin/shipping/locations/{location_id}/delete', [ShippingZoneController::class, 'deleteLocation'])->name('admin.shipping.locations.delete');
+    Route::post('/admin/shipping/zones/{zone_id}/locations/store', [ShippingZoneController::class, 'storeLocation'])->name('admin.shipping.locations.store');
+
+    // shipping methods & rates
+    Route::post('/admin/shipping/zones/{zone_id}/methods/store', [ShippingZoneController::class, 'storeMethod'])->name('admin.shipping.methods.store');
+    Route::put('/admin/shipping/methods/{method_id}/update', [ShippingZoneController::class, 'updateMethod'])->name('admin.shipping.methods.update');
+    Route::put('/admin/shipping/methods/{method_id}/update-form', [ShippingZoneController::class, 'updateMethodForm'])->name('admin.shipping.methods.update_form');
+    Route::get('/admin/shipping/methods/{method_id}/delete', [ShippingZoneController::class, 'deleteMethod'])->name('admin.shipping.methods.delete');
+    Route::post('/admin/shipping/methods/{method_id}/rates/store', [ShippingZoneController::class, 'storeRate'])->name('admin.shipping.rates.store');
+    Route::put('/admin/shipping/rates/{rate_id}/update', [ShippingZoneController::class, 'updateRate'])->name('admin.shipping.rates.update');
+    Route::get('/admin/shipping/rates/{rate_id}/delete', [ShippingZoneController::class, 'deleteRate'])->name('admin.shipping.rates.delete');
+
+    // order management routes
+    Route::get('/admin/orders/list', [\App\Http\Controllers\Admin\OrderController::class, 'list'])->name('admin.orders.list');
+    Route::get('/admin/orders/show/{id}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('admin.orders.show');
+    Route::post('/admin/orders/update/{id}', [\App\Http\Controllers\Admin\OrderController::class, 'update'])->name('admin.orders.update');
+    Route::get('/admin/orders/delete/{id}', [\App\Http\Controllers\Admin\OrderController::class, 'delete'])->name('admin.orders.delete');
+
+    // settings routes
+    Route::get('/admin/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings');
+    Route::post('/admin/settings/update', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.update');
+
 });
 
 
@@ -127,11 +158,50 @@ Route::get('cart/remove/{id}', [PaymentController::class, 'removeFromCart'])->na
 
 Route::get('checkout', [PaymentController::class, 'checkout'])->name('checkout');
 Route::post('coupon/apply', [PaymentController::class, 'applyCoupon'])->name('coupon.apply');
+Route::post('checkout/place', [PaymentController::class, 'placeOrder'])->name('checkout.place');
+Route::get('checkout/success/{id}', [PaymentController::class, 'orderSuccess'])->name('checkout.success');
+
+// location & shipping calc routes
+Route::get('locations/divisions/{country_id}', [ShippingController::class, 'getDivisions']);
+Route::get('locations/districts/{division_id}', [ShippingController::class, 'getDistricts']);
+Route::get('locations/areas/{district_id}', [ShippingController::class, 'getAreas']);
+Route::post('checkout/shipping-rates', [ShippingController::class, 'calculateRates'])->name('checkout.shipping_rates');
+Route::post('checkout/select-shipping-rate', [ShippingController::class, 'selectShippingRate'])->name('checkout.select_shipping_rate');
 
 Route::get('shop', [ProductFront::class, 'shop'])->name('shop');
 
-Route::get('{category?}/{subcategory?}', [ProductFront::class, 'getCategorySub']);
-
 Route::get('search', [ProductFront::class, 'getProductSearch'])->name('search');
+Route::post('product/review', [ProductFront::class, 'submitReview'])->name('product.review.submit');
+
+// customer auth routes
+Route::post('user/register', [AuthController::class, 'userRegister'])->name('user.register');
+Route::post('user/login', [AuthController::class, 'userLogin'])->name('user.login');
+Route::get('user/logout', [AuthController::class, 'userLogout'])->name('user.logout');
+
+// customer dashboard routes (protected by auth middleware)
+Route::middleware(['auth'])->group(function () {
+    Route::get('user/dashboard', [\App\Http\Controllers\CustomerController::class, 'dashboard'])->name('user.dashboard');
+    Route::post('user/profile/update', [\App\Http\Controllers\CustomerController::class, 'updateProfile'])->name('user.profile.update');
+    Route::get('user/orders/show/{id}', [\App\Http\Controllers\CustomerController::class, 'showOrder'])->name('user.orders.show');
+
+    // wishlist routes
+    Route::get('wishlist', [\App\Http\Controllers\HomeController::class, 'wishlist'])->name('wishlist');
+    Route::get('wishlist/add/{product_id}', [\App\Http\Controllers\HomeController::class, 'addToWishlist'])->name('wishlist.add');
+    Route::get('wishlist/remove/{id}', [\App\Http\Controllers\HomeController::class, 'removeFromWishlist'])->name('wishlist.remove');
+});
+
+// product compare routes
+Route::get('compare', [\App\Http\Controllers\HomeController::class, 'compare'])->name('compare');
+Route::get('compare/add/{product_id}', [\App\Http\Controllers\HomeController::class, 'addToCompare'])->name('compare.add');
+Route::get('compare/remove/{product_id}', [\App\Http\Controllers\HomeController::class, 'removeFromCompare'])->name('compare.remove');
+
+// social login routes
+Route::get('auth/google', [App\Http\Controllers\Auth\SocialLoginController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [App\Http\Controllers\Auth\SocialLoginController::class, 'handleGoogleCallback']);
+Route::get('auth/facebook', [App\Http\Controllers\Auth\SocialLoginController::class, 'redirectToFacebook'])->name('auth.facebook');
+Route::get('auth/facebook/callback', [App\Http\Controllers\Auth\SocialLoginController::class, 'handleFacebookCallback']);
+
+// Wildcard route (must be at the bottom)
+Route::get('{category?}/{subcategory?}', [ProductFront::class, 'getCategorySub']);
 
 

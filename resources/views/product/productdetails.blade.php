@@ -70,12 +70,12 @@
                                 <div class="product-details">
                                     <h1 class="product-title">{{ $getProduct->product_title}}</h1>
 
-                                    <div class="ratings-container">
-                                        <div class="ratings">
-                                            <div class="ratings-val" style="width: 80%;"></div>
-                                        </div><!-- End .ratings -->
-                                        <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
-                                    </div><!-- End .rating-container -->
+                                     <div class="ratings-container">
+                                         <div class="ratings">
+                                             <div class="ratings-val" style="width: {{ $avgRating * 20 }}%;"></div>
+                                         </div><!-- End .ratings -->
+                                         <a class="ratings-text" href="#product-review-link" id="review-link">( {{ $reviewsCount }} {{ $reviewsCount == 1 ? 'Review' : 'Reviews' }} )</a>
+                                     </div><!-- End .rating-container -->
 
                                     <div class="product-price">
                                         @if($getProduct->sale_price && $getProduct->sale_price < $getProduct->price)
@@ -146,10 +146,14 @@
                                        
                                         <button style="background:#fff;color:#c96;" type="submit" class="btn-product btn-cart">Add to Cart</button>
 
-                                        <div class="details-action-wrapper">
-                                            <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
-                                           
-                                        </div><!-- End .details-action-wrapper -->
+                                         @php
+                                             $isInWishlist = auth()->check() ? \App\Models\WishlistModel::where('user_id', auth()->id())->where('product_id', $getProduct->id)->exists() : false;
+                                             $isInCompare = in_array($getProduct->id, session()->get('compare', []));
+                                         @endphp
+                                         <div class="details-action-wrapper">
+                                             <a href="{{ route('wishlist.add', $getProduct->id) }}" class="btn-product btn-wishlist" title="Wishlist" {!! $isInWishlist ? 'style="color: #c96 !important;"' : '' !!}><span>{{ $isInWishlist ? 'Added to Wishlist' : 'Add to Wishlist' }}</span></a>
+                                             <a href="{{ route('compare.add', $getProduct->id) }}" class="btn-product btn-compare" title="Compare" {!! $isInCompare ? 'style="color: #c96 !important;"' : '' !!}><span>{{ $isInCompare ? 'Added to Compare' : 'Add to Compare' }}</span></a>
+                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
                                     </form>
                                     <div class="product-details-footer">
@@ -197,7 +201,7 @@
                                 <a class="nav-link" id="product-shipping-link" data-toggle="tab" href="#product-shipping-tab" role="tab" aria-controls="product-shipping-tab" aria-selected="false">Shipping & Returns</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (2)</a>
+                                <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews ({{ $reviewsCount }})</a>
                             </li>
                         </ul>
                     </div><!-- End .container -->
@@ -227,58 +231,92 @@
                         <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
                             <div class="reviews">
                                 <div class="container">
-                                    <h3>Reviews (2)</h3>
+                                    <h3>Reviews ({{ $reviewsCount }})</h3>
+                                    
+                                    @foreach($reviews as $review)
                                     <div class="review">
                                         <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">Samanta J.</a></h4>
+                                            <div class="col-auto" style="min-width: 150px;">
+                                                <h4><a href="javascript:void(0);">{{ $review->name }}</a></h4>
                                                 <div class="ratings-container">
                                                     <div class="ratings">
-                                                        <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                                                        <div class="ratings-val" style="width: {{ $review->rating * 20 }}%;"></div><!-- End .ratings-val -->
                                                     </div><!-- End .ratings -->
                                                 </div><!-- End .rating-container -->
-                                                <span class="review-date">6 days ago</span>
+                                                <span class="review-date">{{ $review->created_at->diffForHumans() }}</span>
                                             </div><!-- End .col -->
                                             <div class="col">
-                                                <h4>Good, perfect size</h4>
-
-                                                <div class="review-content">
-                                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
+                                                <div class="review-content" style="padding-left: 2rem;">
+                                                    <p style="font-size: 1.4rem; color: #666; line-height: 1.6;">{{ $review->review }}</p>
                                                 </div><!-- End .review-content -->
-
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
                                             </div><!-- End .col-auto -->
                                         </div><!-- End .row -->
                                     </div><!-- End .review -->
+                                    @endforeach
 
-                                    <div class="review">
-                                        <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">John Doe</a></h4>
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                </div><!-- End .rating-container -->
-                                                <span class="review-date">5 days ago</span>
-                                            </div><!-- End .col -->
-                                            <div class="col">
-                                                <h4>Very good</h4>
+                                    @if($reviews->isEmpty())
+                                        <p class="text-muted">No reviews yet for this product. Be the first to leave one!</p>
+                                    @endif
 
-                                                <div class="review-content">
-                                                    <p>Sed, molestias, tempore? Ex dolor esse iure hic veniam laborum blanditiis laudantium iste amet. Cum non voluptate eos enim, ab cumque nam, modi, quas iure illum repellendus, blanditiis perspiciatis beatae!</p>
-                                                </div><!-- End .review-content -->
+                                    <!-- Add Review Form -->
+                                     <div class="reply mt-5 pt-4" style="border-top: 1px solid #ebebeb;">
+                                         <h3 class="mb-2">Write a Review</h3>
+                                         @if(session('success'))
+                                             <div class="alert alert-success mb-3">
+                                                 {{ session('success') }}
+                                             </div>
+                                         @endif
+                                         @if($errors->any())
+                                             <div class="alert alert-danger mb-3">
+                                                 <ul class="mb-0">
+                                                     @foreach($errors->all() as $error)
+                                                         <li>{{ $error }}</li>
+                                                     @endforeach
+                                                 </ul>
+                                             </div>
+                                         @endif
 
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (0)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
-                                            </div><!-- End .col-auto -->
-                                        </div><!-- End .row -->
-                                    </div><!-- End .review -->
+                                         @if(!auth()->check())
+                                             <div class="alert alert-warning mb-3" style="font-size: 1.4rem; padding: 1.5rem 2rem;">
+                                                 <i class="icon-warning" style="margin-right: 1rem; color: #e0b034;"></i> Only logged-in customers who have purchased this product may leave a review.
+                                             </div>
+                                         @elseif(!$userHasPurchased)
+                                             <div class="alert alert-warning mb-3" style="font-size: 1.4rem; padding: 1.5rem 2rem;">
+                                                 <i class="icon-warning" style="margin-right: 1rem; color: #e0b034;"></i> Only logged-in customers who have purchased this product may leave a review.
+                                             </div>
+                                         @else
+                                             <form action="{{ route('product.review.submit') }}" method="POST">
+                                                 {{ csrf_field() }}
+                                                 <input type="hidden" name="product_id" value="{{ $getProduct->id }}">
+                                                 
+                                                 <div class="row mb-3">
+                                                     <div class="col-md-6 col-sm-12">
+                                                         <label for="rating" style="font-weight: 500; color: #333;">Your Rating <span class="text-danger">*</span></label>
+                                                         <select name="rating" id="rating" class="form-control" required style="max-width: 250px;">
+                                                             <option value="">Select a rating...</option>
+                                                             <option value="5" {{ old('rating') == 5 ? 'selected' : '' }}>5 Stars - Excellent</option>
+                                                             <option value="4" {{ old('rating') == 4 ? 'selected' : '' }}>4 Stars - Good</option>
+                                                             <option value="3" {{ old('rating') == 3 ? 'selected' : '' }}>3 Stars - Average</option>
+                                                             <option value="2" {{ old('rating') == 2 ? 'selected' : '' }}>2 Stars - Not Bad</option>
+                                                             <option value="1" {{ old('rating') == 1 ? 'selected' : '' }}>1 Star - Poor</option>
+                                                         </select>
+                                                     </div>
+                                                 </div>
+
+                                                 <div class="row mb-3">
+                                                     <div class="col-12">
+                                                         <label for="review" style="font-weight: 500; color: #333;">Your Review <span class="text-danger">*</span></label>
+                                                         <textarea class="form-control" id="review" name="review" rows="4" placeholder="Write your review here... (minimum 5 characters)" required>{{ old('review') }}</textarea>
+                                                     </div>
+                                                 </div>
+
+                                                 <button type="submit" class="btn btn-outline-primary-2 btn-minwidth-sm">
+                                                     <span>SUBMIT REVIEW</span>
+                                                     <i class="icon-long-arrow-right"></i>
+                                                 </button>
+                                             </form>
+                                         @endif
+                                     </div><!-- End .reply -->
                                 </div><!-- End .container -->
                             </div><!-- End .reviews -->
                         </div><!-- .End .tab-pane -->
@@ -339,11 +377,16 @@
 
                                 </a>
 
-                                <div class="product-action-vertical">
-                                    <a href="#" class="btn-product-icon btn-wishlist btn-expandable">
-                                        <span>Add to wishlist</span>
-                                    </a>
-                                </div>
+                                 @php
+                                     $isRelatedInWishlist = auth()->check() ? \App\Models\WishlistModel::where('user_id', auth()->id())->where('product_id', $product->id)->exists() : false;
+                                     $isRelatedInCompare = in_array($product->id, session()->get('compare', []));
+                                 @endphp
+                                 <div class="product-action-vertical">
+                                      <a href="{{ route('wishlist.add', $product->id) }}" class="btn-product-icon btn-wishlist btn-expandable" {!! $isRelatedInWishlist ? 'style="background-color: #c96 !important; color: #fff !important;"' : '' !!}>
+                                          <span>Add to wishlist</span>
+                                      </a>
+                                      <a href="{{ route('compare.add', $product->id) }}" class="btn-product-icon btn-compare" title="Compare product" style="display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; margin-top: 5px; border: 1px solid #ebebeb; {!! $isRelatedInCompare ? 'background-color: #c96 !important; color: #fff !important;' : 'background-color: #fff !important; color: #666 !important;' !!}"><span>Compare</span></a>
+                                  </div>
 
                                 <!-- <div class="product-action">
                                     <a href="#" class="btn-product btn-cart">
@@ -377,11 +420,15 @@
                                     @endif
                                 </div>
 
+                                @php
+                                    $relatedAvgRating = $product->getAvgRating();
+                                    $relatedReviewsCount = $product->getReviewsCount();
+                                @endphp
                                 <div class="ratings-container">
                                     <div class="ratings">
-                                        <div class="ratings-val" style="width:80%;"></div>
+                                        <div class="ratings-val" style="width: {{ $relatedAvgRating * 20 }}%;"></div>
                                     </div>
-                                    <span class="ratings-text">(0 Reviews)</span>
+                                    <span class="ratings-text">({{ $relatedReviewsCount }} {{ $relatedReviewsCount == 1 ? 'Review' : 'Reviews' }})</span>
                                 </div>
 
                             </div>

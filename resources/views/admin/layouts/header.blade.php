@@ -230,6 +230,27 @@
                   </a>
               </li>
               <li class="nav-item">
+                  <a href="{{ route('admin.shipping.zones.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'shipping' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-truck"></i>
+                      <p>Shipping Zones</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.orders.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'orders' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-cart-fill"></i>
+                      <p>Orders</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.settings') }}"
+                    class="nav-link {{ request()->segment(2) == 'settings' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-gear"></i>
+                      <p>Settings</p>
+                  </a>
+              </li>
+              <li class="nav-item">
                 <form action="{{ route('admin.logout') }}" method="POST">
                   @csrf
                   <button type="submit" class="nav-link btn btn-link">

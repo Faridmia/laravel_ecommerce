@@ -2,28 +2,28 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+class Order extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    protected $table = 'orders';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'first_name',
-        'last_name',
-        'display_name',
+        'order_number',
+        'user_id',
+        'subtotal',
+        'discount',
+        'shipping_charge',
+        'total',
+        'payment_method',
+        'payment_status',
+        'status',
+        'coupon_code',
+        'order_notes',
+        
+        // Billing
+        'billing_first_name',
+        'billing_last_name',
         'billing_company',
         'billing_country_id',
         'billing_division_id',
@@ -35,6 +35,9 @@ class User extends Authenticatable
         'billing_state',
         'billing_postcode',
         'billing_phone',
+        'billing_email',
+
+        // Shipping
         'shipping_first_name',
         'shipping_last_name',
         'shipping_company',
@@ -50,33 +53,14 @@ class User extends Authenticatable
         'shipping_phone',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
-
-    static function getAdminList()
+    public function user()
     {
-        return User::select('users.*')
-            ->where('is_admin', 1)
-            ->where('is_delete', 0 )
-            ->orderBy('id', 'desc')
-            ->get();
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class, 'order_id');
     }
 
     public function billingCountry()
