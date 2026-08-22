@@ -76,8 +76,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
                             </li>
-                            <li class="nav-item">
+                             <li class="nav-item">
                                 <a class="nav-link" id="tab-profile-link" data-toggle="tab" href="#tab-profile" role="tab" aria-controls="tab-profile" aria-selected="false">Edit Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-notifications-link" data-toggle="tab" href="#tab-notifications" role="tab" aria-controls="tab-notifications" aria-selected="false">Notification</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="tab-password-link" data-toggle="tab" href="#tab-password" role="tab" aria-controls="tab-password" aria-selected="false">Change Password</a>
@@ -293,7 +296,25 @@
                                 </form>
                             </div>
 
-                            <!-- 4. Change Password Tab -->
+                            <!-- 4. Notification Tab -->
+                            <div class="tab-pane fade" id="tab-notifications" role="tabpanel" aria-labelledby="tab-notifications-link">
+                                <div class="notifications-list">
+                                    @forelse($notifications as $notification)
+                                        <div style="background: @if(!$notification->is_read) #f5f5f5 @else #ffffff @endif; padding: 20px; margin-bottom: 15px; border-radius: 0; border: none; border-bottom: 1px solid #ebebeb;">
+                                            <a href="{{ route('notifications.read', $notification->id) }}" style="text-decoration: none; display: block; color: inherit;">
+                                                <div style="font-size: 1.6rem; font-weight: 600; color: #333333; margin-bottom: 5px;">{{ $notification->message }}</div>
+                                                <div style="font-size: 1.3rem; color: #888888;">{{ $notification->created_at->format('d-m-Y h:i A') }}</div>
+                                            </a>
+                                        </div>
+                                    @empty
+                                        <div class="text-center p-4">
+                                            <p>No notifications available.</p>
+                                        </div>
+                                    @endforelse
+                                </div>
+                            </div>
+
+                            <!-- 5. Change Password Tab -->
                             <div class="tab-pane fade" id="tab-password" role="tabpanel" aria-labelledby="tab-password-link">
                                 <form action="{{ route('user.password.update') }}" method="POST">
                                     {{ csrf_field() }}

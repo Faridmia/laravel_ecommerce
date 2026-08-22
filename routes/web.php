@@ -158,6 +158,14 @@ Route::middleware(['web', 'admin'])->group(function () {
     Route::get('/admin/system-settings', [\App\Http\Controllers\Admin\SystemSettingController::class, 'index'])->name('admin.system_settings');
     Route::post('/admin/system-settings/update', [\App\Http\Controllers\Admin\SystemSettingController::class, 'update'])->name('admin.system_settings.update');
 
+    // SMTP settings routes
+    Route::get('/admin/smtp-settings', [\App\Http\Controllers\Admin\SmtpSettingController::class, 'index'])->name('admin.smtp_settings');
+    Route::post('/admin/smtp-settings/update', [\App\Http\Controllers\Admin\SmtpSettingController::class, 'update'])->name('admin.smtp_settings.update');
+
+    // Payment Gateway settings routes
+    Route::get('/admin/payment-gateways', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'index'])->name('admin.payment_gateways');
+    Route::post('/admin/payment-gateways/update', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'update'])->name('admin.payment_gateways.update');
+
     // home setting routes
     Route::get('/admin/home-setting', [\App\Http\Controllers\Admin\HomeSettingController::class, 'index'])->name('admin.home_setting');
     Route::post('/admin/home-setting/update', [\App\Http\Controllers\Admin\HomeSettingController::class, 'update'])->name('admin.home_setting.update');
@@ -258,6 +266,11 @@ Route::post('coupon/apply', [PaymentController::class, 'applyCoupon'])->name('co
 Route::post('checkout/place', [PaymentController::class, 'placeOrder'])->name('checkout.place');
 Route::get('checkout/success/{id}', [PaymentController::class, 'orderSuccess'])->name('checkout.success');
 
+// SSLCommerz callback routes
+Route::post('sslcommerz/success', [PaymentController::class, 'sslCommerzSuccess'])->name('sslcommerz.success');
+Route::post('sslcommerz/fail', [PaymentController::class, 'sslCommerzFail'])->name('sslcommerz.fail');
+Route::post('sslcommerz/cancel', [PaymentController::class, 'sslCommerzCancel'])->name('sslcommerz.cancel');
+
 // location & shipping calc routes
 Route::get('locations/divisions/{country_id}', [ShippingController::class, 'getDivisions']);
 Route::get('locations/districts/{division_id}', [ShippingController::class, 'getDistricts']);
@@ -281,6 +294,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('user/profile/update', [\App\Http\Controllers\CustomerController::class, 'updateProfile'])->name('user.profile.update');
     Route::post('user/password/update', [\App\Http\Controllers\CustomerController::class, 'updatePassword'])->name('user.password.update');
     Route::get('user/orders/show/{id}', [\App\Http\Controllers\CustomerController::class, 'showOrder'])->name('user.orders.show');
+
+    // notifications read route
+    Route::get('notifications/read/{id}', [\App\Http\Controllers\HomeController::class, 'readNotification'])->name('notifications.read');
 
     // wishlist routes
     Route::get('wishlist', [\App\Http\Controllers\HomeController::class, 'wishlist'])->name('wishlist');

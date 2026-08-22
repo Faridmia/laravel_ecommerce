@@ -293,35 +293,100 @@
                                     </table><!-- End .table table-summary -->
 
                                     <div class="accordion-summary text-start mb-3" id="accordion-payment">
-                                        <div class="card">
-                                            <div class="card-header" id="heading-cod">
-                                                <h2 class="card-title">
-                                                    <div class="custom-control custom-radio">
-                                                        <input type="radio" id="payment_cod" name="payment_method" value="cod" class="custom-control-input" checked>
-                                                        <label class="custom-control-label" for="payment_cod">Cash on delivery</label>
+                                        @php $first = true; @endphp
+                                        @foreach($payment_gateways as $gateway)
+                                            @if($gateway->status === 'yes')
+                                                @php $gatewayKey = $gateway->gateway_key; @endphp
+                                                <div class="card">
+                                                    <div class="card-header" id="heading-{{ $gatewayKey }}">
+                                                        <h2 class="card-title">
+                                                            <a role="button" data-toggle="collapse" href="#collapse-{{ $gatewayKey }}" aria-expanded="@if($first) true @else false @endif" aria-controls="collapse-{{ $gatewayKey }}" class="@if(!$first) collapsed @endif d-block">
+                                                                {{ $gateway->name }}
+                                                                <input type="radio" id="payment_{{ $gatewayKey }}" name="payment_method" value="{{ $gatewayKey }}" style="display: none;" @if($first) checked @endif>
+                                                            </a>
+                                                        </h2>
                                                     </div>
-                                                </h2>
-                                            </div>
-                                            <div id="collapse-cod" class="collapse show" aria-labelledby="heading-cod" data-parent="#accordion-payment">
-                                                <div class="card-body">
-                                                    Pay with cash upon delivery. Safe and simple.
-                                                </div>
-                                            </div>
-                                        </div>
+                                                    <div id="collapse-{{ $gatewayKey }}" class="collapse @if($first) show @endif" aria-labelledby="heading-{{ $gatewayKey }}" data-parent="#accordion-payment">
+                                                        <div class="card-body">
+                                                            {{ $gateway->description }}
+                                                            
+                                                             @if($gatewayKey === 'stripe')
+                                                                 <!-- Stripe Card Elements Form -->
+                                                                 <div id="stripe-card-element-container" class="mt-3" style="display: none;">
+                                                                     <div class="form-group mb-2">
+                                                                         <label for="card-number-element" style="font-weight: 600; font-size: 1.3rem;">Card Number</label>
+                                                                         <div id="card-number-element" class="form-control" style="padding: 12px; height: 40px; border: 1px solid #ccc; background: white; border-radius: 4px;"></div>
+                                                                     </div>
+                                                                     <div class="row">
+                                                                         <div class="col-md-6">
+                                                                             <div class="form-group mb-2">
+                                                                                 <label for="card-expiry-element" style="font-weight: 600; font-size: 1.3rem;">Expiration Date</label>
+                                                                                 <div id="card-expiry-element" class="form-control" style="padding: 12px; height: 40px; border: 1px solid #ccc; background: white; border-radius: 4px;"></div>
+                                                                             </div>
+                                                                         </div>
+                                                                         <div class="col-md-6">
+                                                                             <div class="form-group mb-2">
+                                                                                 <label for="card-cvc-element" style="font-weight: 600; font-size: 1.3rem;">Card CVC / CVV</label>
+                                                                                 <div id="card-cvc-element" class="form-control" style="padding: 12px; height: 40px; border: 1px solid #ccc; background: white; border-radius: 4px;"></div>
+                                                                             </div>
+                                                                         </div>
+                                                                     </div>
+                                                                     <!-- Used to display form errors. -->
+                                                                     <div id="card-errors" role="alert" class="text-danger mt-2" style="font-size: 1.3rem;"></div>
+                                                                 </div>
+                                                             @endif
 
-                                        <!-- Future Payment gateways can be appended here -->
-                                        <!--
-                                        <div class="card">
-                                            <div class="card-header" id="heading-stripe">
-                                                <h2 class="card-title">
-                                                    <div class="custom-control custom-radio">
-                                                        <input type="radio" id="payment_stripe" name="payment_method" value="stripe" class="custom-control-input">
-                                                        <label class="custom-control-label" for="payment_stripe">Pay with Card (Stripe)</label>
+                                                             @if($gatewayKey === 'authorizenet')
+                                                                 <!-- Authorize.Net Card Form -->
+                                                                 <div id="authorizenet-card-container" class="mt-3" style="display: none; width: 100%;">
+                                                                     <div style="margin-bottom: 10px; width: 100%;">
+                                                                         <label style="font-weight: 600; font-size: 1.3rem; display: block; margin-bottom: 5px; text-align: left;">Card Number</label>
+                                                                         <input type="text" name="authorizenet_card_number" class="form-control" placeholder="1111 2222 3333 4444" style="height: 40px; width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 4px; box-sizing: border-box;">
+                                                                     </div>
+                                                                     <div style="display: flex; gap: 15px; width: 100%; box-sizing: border-box;">
+                                                                         <div style="flex: 1;">
+                                                                             <label style="font-weight: 600; font-size: 1.3rem; display: block; margin-bottom: 5px; text-align: left;">Expiration (MM/YY)</label>
+                                                                             <input type="text" name="authorizenet_card_expiry" class="form-control" placeholder="MM/YY" style="height: 40px; width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 4px; box-sizing: border-box;">
+                                                                         </div>
+                                                                         <div style="flex: 1;">
+                                                                             <label style="font-weight: 600; font-size: 1.3rem; display: block; margin-bottom: 5px; text-align: left;">Card CVC / CVV</label>
+                                                                             <input type="text" name="authorizenet_card_code" class="form-control" placeholder="123" style="height: 40px; width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 4px; box-sizing: border-box;">
+                                                                         </div>
+                                                                     </div>
+                                                                 </div>
+                                                             @endif
+
+                                                             @if($gatewayKey === 'square')
+                                                                 <!-- Square Card Form -->
+                                                                 <div id="square-card-container" class="mt-3" style="display: none; width: 100%;">
+                                                                     <div style="margin-bottom: 10px; width: 100%;">
+                                                                         <label style="font-weight: 600; font-size: 1.3rem; display: block; margin-bottom: 5px; text-align: left;">Card Number</label>
+                                                                         <input type="text" name="square_card_number" class="form-control" placeholder="1111 2222 3333 4444" style="height: 40px; width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 4px; box-sizing: border-box;">
+                                                                     </div>
+                                                                     <div style="display: flex; gap: 15px; width: 100%; box-sizing: border-box;">
+                                                                         <div style="flex: 1;">
+                                                                             <label style="font-weight: 600; font-size: 1.3rem; display: block; margin-bottom: 5px; text-align: left;">Expiration (MM/YY)</label>
+                                                                             <input type="text" name="square_card_expiry" class="form-control" placeholder="MM/YY" style="height: 40px; width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 4px; box-sizing: border-box;">
+                                                                         </div>
+                                                                         <div style="flex: 1;">
+                                                                             <label style="font-weight: 600; font-size: 1.3rem; display: block; margin-bottom: 5px; text-align: left;">Card CVC / CVV</label>
+                                                                             <input type="text" name="square_card_code" class="form-control" placeholder="123" style="height: 40px; width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 4px; box-sizing: border-box;">
+                                                                         </div>
+                                                                     </div>
+                                                                 </div>
+                                                             @endif
+
+                                                            @if($gatewayKey === 'paypal')
+                                                                <!-- PayPal Button Container -->
+                                                                <div id="paypal-button-container" class="mt-3" style="display: none;"></div>
+                                                                <div id="paypal-errors" class="text-danger mt-2" style="font-size: 1.3rem;"></div>
+                                                            @endif
+                                                        </div>
                                                     </div>
-                                                </h2>
-                                            </div>
-                                        </div>
-                                        -->
+                                                </div>
+                                                @php $first = false; @endphp
+                                            @endif
+                                        @endforeach
                                     </div>
 
                                     @if ($errors->any())
@@ -334,10 +399,12 @@
                                         </div>
                                     @endif
 
-                                    <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
-                                        <span class="btn-text">Place Order</span>
-                                        <span class="btn-hover-text">Proceed to Checkout</span>
-                                    </button>
+                                    <div id="place-order-btn-wrapper">
+                                        <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
+                                            <span class="btn-text">Place Order</span>
+                                            <span class="btn-hover-text">Proceed to Checkout</span>
+                                        </button>
+                                    </div>
                                 </div><!-- End .summary -->
                             </aside><!-- End .col-lg-3 -->
                         </div><!-- End .row -->
@@ -349,8 +416,98 @@
 
 @endsection
 @section('script')
+@php
+    $stripeGateway = $payment_gateways->where('gateway_key', 'stripe')->first();
+    $stripeActive = $stripeGateway && $stripeGateway->status === 'yes';
+    
+    $paypalGateway = $payment_gateways->where('gateway_key', 'paypal')->first();
+    $paypalActive = $paypalGateway && $paypalGateway->status === 'yes';
+    $paypalClientId = $paypalGateway ? $paypalGateway->public_key : '';
+@endphp
+
+@if($stripeActive && !empty($stripe_public_key))
+<script src="https://js.stripe.com/v3/"></script>
+@endif
+
+@if($paypalActive && !empty($paypalClientId))
+<script src="https://www.paypal.com/sdk/js?client-id={{ $paypalClientId }}&currency=USD"></script>
+@endif
+
+@if(!empty($razorpay_public_key) && $razorpay_active)
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+@endif
+
+@if(!empty($paystack_public_key) && $paystack_active)
+<script src="https://js.paystack.co/v1/inline.js"></script>
+@endif
+
 <script>
     $(document).ready(function() {
+        // Toggle payment elements display on change of payment method radio
+        $(document).on('change', 'input[name="payment_method"]', function() {
+            var selectedMethod = $(this).val();
+            if (selectedMethod === 'stripe') {
+                $('#stripe-card-element-container').slideDown();
+            } else {
+                $('#stripe-card-element-container').slideUp();
+            }
+
+            if (selectedMethod === 'authorizenet') {
+                $('#authorizenet-card-container').slideDown();
+            } else {
+                $('#authorizenet-card-container').slideUp();
+            }
+
+            if (selectedMethod === 'square') {
+                $('#square-card-container').slideDown();
+            } else {
+                $('#square-card-container').slideUp();
+            }
+
+            if (selectedMethod === 'paypal') {
+                if (typeof paypal !== 'undefined') {
+                    $('#place-order-btn-wrapper').hide();
+                    $('#paypal-button-container').slideDown();
+                    $('#paypal-errors').hide();
+                } else {
+                    $('#place-order-btn-wrapper').show();
+                    $('#paypal-button-container').hide();
+                    $('#paypal-errors').text('PayPal SDK could not be loaded. Please ensure your Client ID is valid or use another payment method.').show();
+                }
+            } else {
+                $('#paypal-errors').hide();
+                $('#paypal-button-container').slideUp();
+                $('#place-order-btn-wrapper').show();
+            }
+        });
+
+        // Trigger on load
+        var activeMethod = $('input[name="payment_method"]:checked').val();
+        if (activeMethod === 'stripe') {
+            $('#stripe-card-element-container').show();
+        }
+        if (activeMethod === 'authorizenet') {
+            $('#authorizenet-card-container').show();
+        }
+        if (activeMethod === 'square') {
+            $('#square-card-container').show();
+        }
+        if (activeMethod === 'paypal') {
+            if (typeof paypal !== 'undefined') {
+                $('#place-order-btn-wrapper').hide();
+                $('#paypal-button-container').show();
+            } else {
+                $('#place-order-btn-wrapper').show();
+                $('#paypal-button-container').hide();
+                $('#paypal-errors').text('PayPal SDK could not be loaded. Please ensure your Client ID is valid or use another payment method.').show();
+            }
+        }
+
+        // When a collapse panel starts showing, check its corresponding radio button!
+        $(document).on('show.bs.collapse', '.collapse', function () {
+            var gatewayKey = $(this).attr('id').replace('collapse-', '');
+            $('#payment_' + gatewayKey).prop('checked', true).trigger('change');
+        });
         // Toggle account creation password input
         $(document).on('change', '#checkout-create-acc', function() {
             if ($(this).is(':checked')) {
@@ -728,6 +885,219 @@
                 }
             });
         });
+
+        @if(!empty($stripe_public_key) && $stripeActive)
+            try {
+                if (typeof Stripe !== 'undefined') {
+                    var stripe = Stripe('{{ $stripe_public_key }}');
+                    var elements = stripe.elements();
+                    var style = {
+                        base: {
+                            color: '#32325d',
+                            fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                            fontSmoothing: 'antialiased',
+                            fontSize: '16px',
+                            '::placeholder': {
+                                color: '#aab7c4'
+                            }
+                        },
+                        invalid: {
+                            color: '#fa755a',
+                            iconColor: '#fa755a'
+                        }
+                    };
+                    var cardNumber = elements.create('cardNumber', {style: style});
+                    cardNumber.mount('#card-number-element');
+
+                    var cardExpiry = elements.create('cardExpiry', {style: style});
+                    cardExpiry.mount('#card-expiry-element');
+
+                    var cardCvc = elements.create('cardCvc', {style: style});
+                    cardCvc.mount('#card-cvc-element');
+
+                    function handleErrors(event) {
+                        var displayError = document.getElementById('card-errors');
+                        if (event.error) {
+                            displayError.textContent = event.error.message;
+                        } else {
+                            displayError.textContent = '';
+                        }
+                    }
+
+                    cardNumber.on('change', handleErrors);
+                    cardExpiry.on('change', handleErrors);
+                    cardCvc.on('change', handleErrors);
+                } else {
+                    console.error("Stripe.js was not loaded.");
+                    $('#card-errors').text('Stripe.js failed to load. Please check your internet connection.').show();
+                }
+            } catch (err) {
+                console.error("Stripe initialization error:", err);
+                $('#card-errors').text('Stripe error: ' + err.message).show();
+            }
+        @endif
+
+        $('#checkout-form').on('submit', function(e) {
+            var selectedMethod = $('input[name="payment_method"]:checked').val();
+            
+            // Get current total from the text (strip dollar sign)
+            var totalText = $('#checkout-total').text().replace('$', '').trim();
+            var totalVal = parseFloat(totalText);
+            if (isNaN(totalVal) || totalVal <= 0) {
+                totalVal = {{ round($total, 2) }};
+            }
+
+            if (selectedMethod === 'stripe') {
+                e.preventDefault();
+                
+                var submitBtn = $(this).find('button[type="submit"]');
+                submitBtn.prop('disabled', true).text('Processing Payment...');
+
+                if (typeof stripe !== 'undefined' && typeof cardNumber !== 'undefined') {
+                    stripe.createToken(cardNumber).then(function(result) {
+                        if (result.error) {
+                            var displayError = document.getElementById('card-errors');
+                            displayError.textContent = result.error.message;
+                            submitBtn.prop('disabled', false).text('Place Order');
+                        } else {
+                            var form = document.getElementById('checkout-form');
+                            var tokenInput = $('input[name="stripeToken"]');
+                            if (tokenInput.length > 0) {
+                                tokenInput.val(result.token.id);
+                            } else {
+                                var hiddenInput = document.createElement('input');
+                                hiddenInput.setAttribute('type', 'hidden');
+                                hiddenInput.setAttribute('name', 'stripeToken');
+                                hiddenInput.setAttribute('value', result.token.id);
+                                form.appendChild(hiddenInput);
+                            }
+                            form.submit();
+                        }
+                    });
+                } else {
+                    $('#card-errors').text('Stripe is not properly initialized. Please try another payment method.').show();
+                    submitBtn.prop('disabled', false).text('Place Order');
+                }
+            }
+
+            if (selectedMethod === 'razorpay') {
+                if ($('input[name="razorpay_payment_id"]').length > 0) {
+                    return true;
+                }
+                
+                e.preventDefault();
+                
+                if (typeof Razorpay !== 'undefined') {
+                    var options = {
+                        "key": "{{ $razorpay_public_key }}",
+                        "amount": (totalVal * 100).toFixed(0),
+                        "currency": "INR",
+                        "name": "{{ config('app.name', 'Molla E-commerce') }}",
+                        "description": "Order checkout payment",
+                        "handler": function (response){
+                            var form = document.getElementById('checkout-form');
+                            var hiddenInput = document.createElement('input');
+                            hiddenInput.setAttribute('type', 'hidden');
+                            hiddenInput.setAttribute('name', 'razorpay_payment_id');
+                            hiddenInput.setAttribute('value', response.razorpay_payment_id);
+                            form.appendChild(hiddenInput);
+                            form.submit();
+                        },
+                        "prefill": {
+                            "name": $('input[name="billing_first_name"]').val() + " " + $('input[name="billing_last_name"]').val(),
+                            "email": $('input[name="billing_email"]').val(),
+                            "contact": $('input[name="billing_phone"]').val()
+                        },
+                        "theme": {
+                            "color": "#c96"
+                        }
+                    };
+                    var rzp1 = new Razorpay(options);
+                    rzp1.open();
+                } else {
+                    alert('Razorpay SDK could not be loaded. Please try another payment method.');
+                }
+            }
+
+            if (selectedMethod === 'paystack') {
+                if ($('input[name="paystack_reference"]').length > 0) {
+                    return true;
+                }
+                
+                e.preventDefault();
+                
+                if (typeof PaystackPop !== 'undefined') {
+                    var handler = PaystackPop.setup({
+                        key: '{{ $paystack_public_key }}',
+                        email: $('input[name="billing_email"]').val(),
+                        amount: (totalVal * 100).toFixed(0),
+                        currency: 'NGN',
+                        callback: function(response){
+                            var form = document.getElementById('checkout-form');
+                            var hiddenInput = document.createElement('input');
+                            hiddenInput.setAttribute('type', 'hidden');
+                            hiddenInput.setAttribute('name', 'paystack_reference');
+                            hiddenInput.setAttribute('value', response.reference);
+                            form.appendChild(hiddenInput);
+                            form.submit();
+                        },
+                        onClose: function(){
+                            alert('Transaction was not completed.');
+                        }
+                    });
+                    handler.openIframe();
+                } else {
+                    alert('Paystack SDK could not be loaded. Please try another payment method.');
+                }
+            }
+        });
+
+        @if($paypalActive && !empty($paypalClientId))
+            if (typeof paypal !== 'undefined') {
+                paypal.Buttons({
+                    createOrder: function(data, actions) {
+                        // Get current total from the text (strip dollar sign)
+                        var totalText = $('#checkout-total').text().replace('$', '').trim();
+                        var totalVal = parseFloat(totalText);
+                        if (isNaN(totalVal) || totalVal <= 0) {
+                            totalVal = {{ round($total, 2) }};
+                        }
+                        return actions.order.create({
+                            purchase_units: [{
+                                amount: {
+                                    value: totalVal.toFixed(2)
+                                }
+                            }]
+                        });
+                    },
+                    onApprove: function(data, actions) {
+                        return actions.order.capture().then(function(details) {
+                            var form = document.getElementById('checkout-form');
+                            
+                            var tokenInput = document.createElement('input');
+                            tokenInput.setAttribute('type', 'hidden');
+                            tokenInput.setAttribute('name', 'paypal_order_id');
+                            tokenInput.setAttribute('value', data.orderID);
+                            form.appendChild(tokenInput);
+
+                            var paymentInput = document.createElement('input');
+                            paymentInput.setAttribute('type', 'hidden');
+                            paymentInput.setAttribute('name', 'paypal_payment_id');
+                            paymentInput.setAttribute('value', details.purchase_units[0].payments.captures[0].id);
+                            form.appendChild(paymentInput);
+
+                            form.submit();
+                        });
+                    },
+                    onError: function(err) {
+                        var errorDiv = document.getElementById('paypal-errors');
+                        errorDiv.textContent = 'PayPal Payment Error: ' + err.toString();
+                    }
+                }).render('#paypal-button-container');
+            } else {
+                console.error("PayPal SDK could not be loaded.");
+            }
+        @endif
     });
 </script>
 @endsection

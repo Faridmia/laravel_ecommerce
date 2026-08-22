@@ -73,6 +73,12 @@ class AuthController extends Controller
         $user->email_verified_at = now(); // Automatically verify email
         $user->save();
 
+        // Notify admins about new registration
+        \App\Models\NotificationModel::notifyAdmins("New Customer Register #" . $user->name, route('admin.customer.list'));
+
+        // Notify user about registration
+        \App\Models\NotificationModel::notifyUser($user->id, "Welcome to Molla! Your account has been created successfully.", route('user.dashboard'));
+
         // event(new \Illuminate\Auth\Events\Registered($user)); // Uncomment to enable email verification in the future
 
         Auth::login($user);

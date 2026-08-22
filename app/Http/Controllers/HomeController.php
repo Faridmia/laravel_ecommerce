@@ -406,4 +406,13 @@ class HomeController extends Controller
 
         return redirect()->back()->with('success', 'Your comment has been submitted and is pending admin approval.');
     }
+
+    public function readNotification($id)
+    {
+        $notification = \App\Models\NotificationModel::where('user_id', auth()->id())->findOrFail($id);
+        $notification->is_read = 1;
+        $notification->save();
+
+        return redirect($notification->url);
+    }
 }

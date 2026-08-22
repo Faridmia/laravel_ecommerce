@@ -50,6 +50,10 @@ class CustomerController extends Controller
         $data['completedOrders'] = Order::where('user_id', $user->id)->where('status', 'completed')->count();
         $data['cancelledOrders'] = Order::where('user_id', $user->id)->where('status', 'cancelled')->count();
 
+        $data['notifications'] = \App\Models\NotificationModel::where('user_id', $user->id)
+            ->orderBy('id', 'desc')
+            ->get();
+
         $data['meta_title'] = "My Account";
         $data['meta_description'] = "";
         $data['meta_keywords'] = "";

@@ -96,6 +96,10 @@ class OrderController extends Controller
         $order->payment_status = $request->payment_status;
         $order->save();
 
+        if ($oldStatus !== $order->status && $order->user_id) {
+            \App\Models\NotificationModel::notifyUser($order->user_id, "Your Order Status Updated #" . $order->order_number, route('user.orders.show', $order->id));
+        }
+
         if ($oldStatus !== $order->status && !empty($order->billing_email)) {
             try {
                 $order->load(['items.size', 'items.color', 'billingCountry', 'billingDivision', 'billingDistrict', 'billingArea', 'shippingCountry', 'shippingDivision', 'shippingDistrict', 'shippingArea']);
@@ -130,6 +134,10 @@ class OrderController extends Controller
         $oldStatus = $order->status;
         $order->status = $request->status;
         $order->save();
+
+        if ($oldStatus !== $order->status && $order->user_id) {
+            \App\Models\NotificationModel::notifyUser($order->user_id, "Your Order Status Updated #" . $order->order_number, route('user.orders.show', $order->id));
+        }
 
         if ($oldStatus !== $order->status && !empty($order->billing_email)) {
             try {

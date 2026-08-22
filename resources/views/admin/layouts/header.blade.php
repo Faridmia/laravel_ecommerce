@@ -110,27 +110,31 @@
             <li class="nav-item dropdown">
               <a class="nav-link" data-bs-toggle="dropdown" href="#">
                 <i class="bi bi-bell-fill"></i>
-                <span class="navbar-badge badge text-bg-warning">15</span>
+                @if(isset($unreadCount) && $unreadCount > 0)
+                  <span class="navbar-badge badge text-bg-warning">{{ $unreadCount }}</span>
+                @endif
               </a>
-              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                <span class="dropdown-item dropdown-header">15 Notifications</span>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end" style="max-height: 400px; overflow-y: auto;">
+                <span class="dropdown-item dropdown-header">{{ isset($unreadCount) ? $unreadCount : 0 }} Unread Notifications</span>
+                @if(isset($notifications))
+                  @forelse($notifications as $notification)
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ route('notifications.read', $notification->id) }}" class="dropdown-item" style="white-space: normal; @if(!$notification->is_read) font-weight: bold; background-color: #f8f9fa; @endif">
+                      <div class="d-flex align-items-start">
+                        <i class="bi bi-info-circle-fill me-2 text-primary"></i>
+                        <div class="flex-grow-1">
+                          <p class="mb-0 fs-7 text-dark">{{ $notification->message }}</p>
+                          <span class="text-secondary fs-8"><i class="bi bi-clock me-1"></i>{{ $notification->created_at->diffForHumans() }}</span>
+                        </div>
+                      </div>
+                    </a>
+                  @empty
+                    <div class="dropdown-divider"></div>
+                    <span class="dropdown-item text-center text-muted fs-7">No notifications</span>
+                  @endforelse
+                @endif
                 <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="bi bi-envelope me-2"></i> 4 new messages
-                  <span class="float-end text-secondary fs-7">3 mins</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="bi bi-people-fill me-2"></i> 8 friend requests
-                  <span class="float-end text-secondary fs-7">12 hours</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="bi bi-file-earmark-fill me-2"></i> 3 new reports
-                  <span class="float-end text-secondary fs-7">2 days</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item dropdown-footer"> See All Notifications </a>
+                <a href="javascript:void(0)" class="dropdown-item dropdown-footer"> See All Notifications </a>
               </div>
             </li>
             <!--end::Notifications Dropdown Menu-->
@@ -361,6 +365,20 @@
                     class="nav-link {{ request()->segment(2) == 'system-settings' ? 'active' : '' }}">
                       <i class="nav-icon bi bi-sliders"></i>
                       <p>System Setting</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.smtp_settings') }}"
+                    class="nav-link {{ request()->segment(2) == 'smtp-settings' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-envelope-check"></i>
+                      <p>SMTP Setting</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.payment_gateways') }}"
+                    class="nav-link {{ request()->segment(2) == 'payment-gateways' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-credit-card"></i>
+                      <p>Payment Gateways</p>
                   </a>
               </li>
               <li class="nav-item">
