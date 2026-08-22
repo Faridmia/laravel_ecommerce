@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'heading',
+        'intro',
+        'profile_pic',
         'first_name',
         'last_name',
         'display_name',
@@ -77,6 +81,14 @@ class User extends Authenticatable
             ->where('is_delete', 0 )
             ->orderBy('id', 'desc')
             ->get();
+    }
+
+    public function getProfilePicUrl()
+    {
+        if (!empty($this->profile_pic) && file_exists(public_path('upload/profile/' . $this->profile_pic))) {
+            return asset('upload/profile/' . $this->profile_pic);
+        }
+        return asset('assets/img/user1-128x128.jpg');
     }
 
     public function billingCountry()

@@ -22,5 +22,13 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Paginator::useBootstrap();
+
+        if (!app()->runningInConsole()) {
+            $systemSettings = \App\Models\SystemSetting::getSingle();
+            view()->share('systemSettings', $systemSettings);
+
+            $homeSetting = \App\Models\HomeSetting::getSingle();
+            view()->share('homeSetting', $homeSetting);
+        }
     }
 }

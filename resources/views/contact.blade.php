@@ -30,31 +30,65 @@
                                 <ul class="contact-list" style="line-height: 2; font-size: 1.4rem; list-style:none; padding:0;">
                                     <li class="mb-1">
                                         <i class="icon-map-marker" style="margin-right: 0.8rem; color: #c96;"></i>
-                                        Dhaka, Bangladesh
+                                        {!! nl2br(e($systemSettings->address ?? 'Dhaka, Bangladesh')) !!}
                                     </li>
+                                    @if(!empty($systemSettings->phone))
                                     <li class="mb-1">
                                         <i class="icon-phone" style="margin-right: 0.8rem; color: #c96;"></i>
-                                        <a href="tel:#" style="color: inherit;">+880 1234 567890</a>
+                                        <a href="tel:{{ $systemSettings->phone }}" style="color: inherit;">{{ $systemSettings->phone }}</a>
                                     </li>
+                                    @endif
+                                    @if(!empty($systemSettings->phone_two))
+                                    <li class="mb-1">
+                                        <i class="icon-phone" style="margin-right: 0.8rem; color: #c96;"></i>
+                                        <a href="tel:{{ $systemSettings->phone_two }}" style="color: inherit;">{{ $systemSettings->phone_two }}</a>
+                                    </li>
+                                    @endif
+                                    @if(!empty($systemSettings->email))
                                     <li class="mb-1">
                                         <i class="icon-envelope" style="margin-right: 0.8rem; color: #c96;"></i>
-                                        <a href="mailto:info@molla.com" style="color: inherit;">info@molla.com</a>
+                                        <a href="mailto:{{ $systemSettings->email }}" style="color: inherit;">{{ $systemSettings->email }}</a>
                                     </li>
+                                    @endif
+                                    @if(!empty($systemSettings->email_two))
+                                    <li class="mb-1">
+                                        <i class="icon-envelope" style="margin-right: 0.8rem; color: #c96;"></i>
+                                        <a href="mailto:{{ $systemSettings->email_two }}" style="color: inherit;">{{ $systemSettings->email_two }}</a>
+                                    </li>
+                                    @endif
                                 </ul><!-- End .contact-list -->
                             </div><!-- End .contact-info -->
                         </div><!-- End .col-sm-6 -->
 
                         <div class="col-sm-6">
                             <div class="contact-info">
-                                <h3 style="font-weight: 500; font-size:1.6rem; color: #333; margin-bottom:1rem;">Office Hours</h3>
+                                <h3 style="font-weight: 500; font-size:1.6rem; color: #333; margin-bottom:1rem;">The Office</h3>
                                 <ul class="contact-list" style="line-height: 2; font-size: 1.4rem; list-style:none; padding:0;">
+                                    @php
+                                        $workingHourText = $systemSettings->working_hour ?? "Monday-Saturday\n9am-8pm BDT\n\nSunday\nClosed";
+                                        $hoursBlocks = explode("\n\n", str_replace("\r", "", $workingHourText));
+                                        
+                                        $weekdays = explode("\n", $hoursBlocks[0] ?? '');
+                                        $weekdaysTitle = $weekdays[0] ?? 'Monday - Saturday';
+                                        $weekdaysTime = $weekdays[1] ?? '';
+                                        
+                                        $weekends = explode("\n", $hoursBlocks[1] ?? '');
+                                        $weekendsTitle = $weekends[0] ?? 'Sunday';
+                                        $weekendsTime = $weekends[1] ?? '';
+                                    @endphp
                                     <li class="mb-1">
                                         <i class="icon-clock-o" style="margin-right: 0.8rem; color: #c96;"></i>
-                                        <span class="text-dark" style="font-weight: 500;">Monday - Saturday</span> <br>9am - 8pm BDT
+                                        <span class="text-dark" style="font-weight: 500;">{{ $weekdaysTitle }}</span>
+                                        @if(!empty($weekdaysTime))
+                                            <br>{{ $weekdaysTime }}
+                                        @endif
                                     </li>
                                     <li class="mb-1">
                                         <i class="icon-calendar" style="margin-right: 0.8rem; color: #c96;"></i>
-                                        <span class="text-dark" style="font-weight: 500;">Sunday</span> <br>Closed
+                                        <span class="text-dark" style="font-weight: 500;">{{ $weekendsTitle }}</span>
+                                        @if(!empty($weekendsTime))
+                                            <br>{{ $weekendsTime }}
+                                        @endif
                                     </li>
                                 </ul><!-- End .contact-list -->
                             </div><!-- End .contact-info -->
@@ -105,6 +139,13 @@
 
                         <div class="mb-3">
                             <textarea class="form-control" cols="30" rows="4" id="cmessage" name="message" required placeholder="Message *" style="font-size:1.3rem; padding: 10px;">{{ old('message') }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label style="font-size: 1.4rem; font-weight: 500; color: #333; display: block; margin-bottom: 0.5rem;">
+                                {{ session('captcha_num1') }} + {{ session('captcha_num2') }} = ?
+                            </label>
+                            <input type="number" class="form-control" name="captcha" placeholder="Verification Sum" required style="height: 40px; font-size:1.3rem;">
                         </div>
 
                         <button type="submit" class="btn btn-outline-primary-2 btn-minwidth-sm">

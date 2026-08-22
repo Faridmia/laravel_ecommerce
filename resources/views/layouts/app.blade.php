@@ -8,11 +8,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{{ !empty($meta_title) ? $meta_title : '' }}</title>
+    <title>{{ !empty($meta_title) ? $meta_title : ($systemSettings->website_name ?? 'Molla') }}</title>
     <meta name="keywords" content="{{ !empty($meta_keywords) ? $meta_keywords : '' }}">
     <meta name="description" content="{{ !empty($meta_description) ? $meta_description : '' }}">
     <meta name="author" content="p-themes">
-    <link rel="shortcut icon" href="{{ asset('assets/images/icons/favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ $systemSettings->getFaviconUrl() }}">
 
     <meta name="apple-mobile-web-app-title" content="Molla">
     <meta name="application-name" content="Molla">
@@ -100,7 +100,7 @@
                                                 <label class="custom-control-label" for="signin-remember">Remember Me</label>
                                             </div><!-- End .custom-checkbox -->
 
-                                            <a href="#" class="forgot-link">Forgot Your Password?</a>
+                                            <a href="{{ route('password.request') }}" class="forgot-link">Forgot Your Password?</a>
                                         </div><!-- End .form-footer -->
                                     </form>
                                     <div class="form-choice">

@@ -20,7 +20,7 @@
                 <div class="card card-primary card-outline mb-4">
                   <!--begin::Form-->
                   @include('admin.layouts._message')
-                  <form action="{{ route('admin.category.store') }}" method="POST">
+                  <form action="{{ route('admin.category.store') }}" method="POST" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <!--begin::Body-->
                     <div class="card-body">
@@ -54,6 +54,26 @@
                           <option value="0">Active</option>
                           <option value="1">Inactive</option>
                         </select>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Show on Homepage Trendy Tabs?</label>
+                        <select name="is_home" class="form-select">
+                          <option value="0">No</option>
+                          <option value="1">Yes</option>
+                        </select>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Category Banner Image</label>
+                        <input type="file" name="image" class="form-control">
+                        <small class="text-muted">Upload a banner image to be displayed on the homepage categories section.</small>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Button Text</label>
+                        <input type="text" name="button_text" value="{{ old('button_text') }}" placeholder="Shop Now" class="form-control">
+                        <small class="text-muted">Text for the call-to-action button (e.g. "Shop Now", "Explore"). Default is "Shop Now".</small>
                       </div>
                      
                     </div>

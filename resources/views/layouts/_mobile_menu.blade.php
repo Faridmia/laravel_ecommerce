@@ -45,14 +45,25 @@
                             @endforeach
                         </ul>
                     </li>
+                    <li>
+                        <a href="{{ url('blog') }}">Blog</a>
+                    </li>
                 </ul>
             </nav>
 
             <div class="social-icons">
-                <a href="#" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
-                <a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
-                <a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
-                <a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
+                @if(!empty($systemSettings->facebook_link))
+                    <a href="{{ $systemSettings->facebook_link }}" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
+                @endif
+                @if(!empty($systemSettings->twitter_link))
+                    <a href="{{ $systemSettings->twitter_link }}" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
+                @endif
+                @if(!empty($systemSettings->instagram_link))
+                    <a href="{{ $systemSettings->instagram_link }}" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
+                @endif
+                @if(!empty($systemSettings->youtube_link))
+                    <a href="{{ $systemSettings->youtube_link }}" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
+                @endif
             </div><!-- End .social-icons -->
         </div><!-- End .mobile-menu-wrapper -->
     </div><!-- End .mobile-menu-container -->

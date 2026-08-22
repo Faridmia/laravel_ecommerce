@@ -21,7 +21,7 @@
                   <!--begin::Form-->
                   @include('admin.layouts._message')
                   
-                  <form action="{{ route('admin.category.update', $getRecord->id) }}" method="POST">
+                  <form action="{{ route('admin.category.update', $getRecord->id) }}" method="POST" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     {{ method_field('PUT') }}
                     <!--begin::Body-->
@@ -53,9 +53,40 @@
                       <div class="mb-3">
                         <label  class="form-label">Status <span class="text-danger">*</span></label>
                         <select name="status" class="form-select">
-                          <option value="0">Active</option>
-                          <option value="1">Inactive</option>
+                          <option {{ $getRecord->status == 0 ? 'selected' : '' }} value="0">Active</option>
+                          <option {{ $getRecord->status == 1 ? 'selected' : '' }} value="1">Inactive</option>
                         </select>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Show on Homepage Trendy Tabs?</label>
+                        <select name="is_home" class="form-select">
+                          <option {{ $getRecord->is_home == 0 ? 'selected' : '' }} value="0">No</option>
+                          <option {{ $getRecord->is_home == 1 ? 'selected' : '' }} value="1">Yes</option>
+                        </select>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Category Banner Image</label>
+                        <input type="file" name="image" class="form-control">
+                        <small class="text-muted d-block mb-2">Upload a banner image to be displayed on the homepage categories section. Leave empty to keep the current image.</small>
+                        @if(!empty($getRecord->image) && file_exists(public_path('upload/categories/' . $getRecord->image)))
+                            <div class="mt-2">
+                                <label class="form-label d-block fw-semibold text-secondary">Current Banner Preview:</label>
+                                <img src="{{ asset('upload/categories/' . $getRecord->image) }}" alt="Category Banner" style="max-height: 100px; border-radius: 4px; border: 1px solid #ddd;">
+                            </div>
+                        @else
+                            <div class="mt-2">
+                                <label class="form-label d-block fw-semibold text-secondary">Current Default Banner:</label>
+                                <img src="{{ $getRecord->getImageUrl() }}" alt="Category Banner Default" style="max-height: 100px; border-radius: 4px; border: 1px solid #ddd;">
+                            </div>
+                        @endif
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Button Text</label>
+                        <input type="text" name="button_text" value="{{ $getRecord->button_text }}" placeholder="Shop Now" class="form-control">
+                        <small class="text-muted">Text for the call-to-action button (e.g. "Shop Now", "Explore"). Default is "Shop Now".</small>
                       </div>
                      
                     </div>

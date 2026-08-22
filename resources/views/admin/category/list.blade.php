@@ -35,6 +35,7 @@
                                 <th>Meta Description</th>
                                 <th>Meta Keywords</th>
                                 <th>Status</th>
+                                <th>Home Tab</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -49,6 +50,9 @@
                                 <td>{{ $value->meta_keywords }}</td>
                                 <td>
                                     {{ $value->status == 0 ? 'Active' : 'Inactive' }}
+                                </td>
+                                <td>
+                                    {{ $value->is_home == 1 ? 'Yes' : 'No' }}
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.category.edit', $value->id) }}" class="btn btn-sm btn-primary">Edit</a>

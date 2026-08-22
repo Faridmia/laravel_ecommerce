@@ -25,6 +25,24 @@
         color: #c96;
         border-bottom-color: #c96;
     }
+    .dashboard .card-dashboard-metric {
+        border: 1px solid #ebebeb;
+        background-color: #fff;
+        padding: 2rem 1rem;
+        margin-bottom: 2rem;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .dashboard .card-dashboard-metric h3 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    .dashboard .card-dashboard-metric span {
+        font-size: 1.3rem;
+        font-weight: 500;
+    }
 </style>
 @endsection
 
@@ -59,25 +77,13 @@
                                 <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="tab-downloads-link" data-toggle="tab" href="#tab-downloads" role="tab" aria-controls="tab-downloads" aria-selected="false">Downloads</a>
+                                <a class="nav-link" id="tab-profile-link" data-toggle="tab" href="#tab-profile" role="tab" aria-controls="tab-profile" aria-selected="false">Edit Profile</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Addresses</a>
+                                <a class="nav-link" id="tab-password-link" data-toggle="tab" href="#tab-password" role="tab" aria-controls="tab-password" aria-selected="false">Change Password</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="tab-wishlist-link" data-toggle="tab" href="#tab-wishlist" role="tab" aria-controls="tab-wishlist" aria-selected="false">Wishlist</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="tab-coupons-link" data-toggle="tab" href="#tab-coupons" role="tab" aria-controls="tab-coupons" aria-selected="false">Coupons</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="tab-reviews-link" data-toggle="tab" href="#tab-reviews" role="tab" aria-controls="tab-reviews" aria-selected="false">Reviews</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="tab-account-link" data-toggle="tab" href="#tab-account" role="tab" aria-controls="tab-account" aria-selected="false">Account Details</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('user.logout') }}">Sign Out</a>
+                                <a class="nav-link" href="{{ route('user.logout') }}">Logout</a>
                             </li>
                         </ul>
                     </aside>
@@ -104,25 +110,65 @@
                             
                             <!-- 1. Dashboard Tab -->
                             <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel" aria-labelledby="tab-dashboard-link">
-                                <p>Hello <span class="font-weight-normal text-dark">{{ auth()->user()->name }}</span> (not <span class="font-weight-normal text-dark">{{ auth()->user()->name }}</span>? <a href="{{ route('user.logout') }}" class="text-primary font-weight-bold">Log out</a>)</p>
-                                <p>From your account dashboard you can view your <a href="#tab-orders" class="tab-trigger-link link-underline">recent orders</a>, manage your <a href="#tab-address" class="tab-trigger-link link-underline">billing and shipping addresses</a>, and <a href="#tab-account" class="tab-trigger-link link-underline">edit your password and account details</a>.</p>
-                                
-                                <div class="row mt-4">
-                                    <div class="col-sm-6 col-lg-4">
-                                        <div class="card card-dashboard p-3 text-center">
-                                            <h5 class="card-title mb-1">Total Orders</h5>
-                                            <span class="fs-4 fw-bold text-primary">{{ $orders->total() }}</span>
+                                <div class="row">
+                                    <!-- Total Orders -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="card-dashboard-metric text-center">
+                                            <h3>{{ $totalOrders }}</h3>
+                                            <span style="color: #666;">Total Orders</span>
                                         </div>
                                     </div>
-                                    @if($latestOrder)
-                                    <div class="col-sm-6 col-lg-4">
-                                        <div class="card card-dashboard p-3 text-center">
-                                            <h5 class="card-title mb-1">Latest Order</h5>
-                                            <span class="fs-5 fw-bold text-dark">{{ $latestOrder->order_number }}</span>
-                                            <span class="badge text-bg-info mt-1" style="display:inline-block; max-width:fit-content; margin:auto;">{{ strtoupper($latestOrder->status) }}</span>
+                                    <!-- Today Order -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="card-dashboard-metric text-center">
+                                            <h3>{{ $todayOrders }}</h3>
+                                            <span style="color: #c96;">Today Order</span>
                                         </div>
                                     </div>
-                                    @endif
+                                    <!-- Total Amount -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="card-dashboard-metric text-center">
+                                            <h3>${{ number_format($totalAmount, 2) }}</h3>
+                                            <span style="color: #666;">Total Amount</span>
+                                        </div>
+                                    </div>
+                                    <!-- Today Amount -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="card-dashboard-metric text-center">
+                                            <h3>${{ number_format($todayAmount, 2) }}</h3>
+                                            <span style="color: #20c997;">Today Amount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <!-- Pending Orders -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="card-dashboard-metric text-center">
+                                            <h3>{{ $pendingOrders }}</h3>
+                                            <span style="color: #ffc107;">Pending Orders</span>
+                                        </div>
+                                    </div>
+                                    <!-- In Progress Orders -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="card-dashboard-metric text-center">
+                                            <h3>{{ $inProgressOrders }}</h3>
+                                            <span style="color: #0d6efd;">In Progress Orders</span>
+                                        </div>
+                                    </div>
+                                    <!-- Completed Orders -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="card-dashboard-metric text-center">
+                                            <h3>{{ $completedOrders }}</h3>
+                                            <span style="color: #28a745;">Completed Orders</span>
+                                        </div>
+                                    </div>
+                                    <!-- Cancelled Orders -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="card-dashboard-metric text-center">
+                                            <h3>{{ $cancelledOrders }}</h3>
+                                            <span style="color: #dc3545;">Cancelled Orders</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -180,229 +226,88 @@
                                 @endif
                             </div>
 
-                            <!-- 3. Downloads Tab -->
-                            <div class="tab-pane fade" id="tab-downloads" role="tabpanel" aria-labelledby="tab-downloads-link">
-                                <p>No downloads available yet.</p>
-                                <a href="{{ route('shop') }}" class="btn btn-outline-primary-2"><span>Go Shop</span><i class="icon-long-arrow-right"></i></a>
-                            </div>
-
-                            <!-- 4. Addresses Tab -->
-                            <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
-                                <p>The following addresses will be used on the checkout page by default.</p>
-                                @if($latestOrder)
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="card card-dashboard">
-                                                <div class="card-body">
-                                                    <h3 class="card-title">Billing Address</h3>
-                                                    <address style="font-style: normal; line-height: 1.6;">
-                                                        <strong>{{ $latestOrder->billing_first_name }} {{ $latestOrder->billing_last_name }}</strong><br>
-                                                        @if($latestOrder->billing_company)
-                                                            {{ $latestOrder->billing_company }}<br>
-                                                        @endif
-                                                        {{ $latestOrder->billing_address_1 }}<br>
-                                                        @if($latestOrder->billing_address_2)
-                                                            {{ $latestOrder->billing_address_2 }}<br>
-                                                        @endif
-                                                        @if($latestOrder->billingCountry && $latestOrder->billingCountry->code === 'BD')
-                                                            {{ $latestOrder->billingArea ? $latestOrder->billingArea->name . ', ' : '' }}
-                                                            {{ $latestOrder->billingDistrict ? $latestOrder->billingDistrict->name . ', ' : '' }}
-                                                            {{ $latestOrder->billingDivision ? $latestOrder->billingDivision->name : '' }}<br>
-                                                        @else
-                                                            {{ $latestOrder->billing_city }}, {{ $latestOrder->billing_state }}<br>
-                                                        @endif
-                                                        {{ $latestOrder->billingCountry ? $latestOrder->billingCountry->name : '' }} - {{ $latestOrder->billing_postcode }}<br>
-                                                        <i class="icon-phone"></i> {{ $latestOrder->billing_phone }}<br>
-                                                        <i class="icon-envelope"></i> {{ $latestOrder->billing_email }}
-                                                    </address>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-6">
-                                            <div class="card card-dashboard">
-                                                <div class="card-body">
-                                                    <h3 class="card-title">Shipping Address</h3>
-                                                    <address style="font-style: normal; line-height: 1.6;">
-                                                        <strong>{{ $latestOrder->shipping_first_name }} {{ $latestOrder->shipping_last_name }}</strong><br>
-                                                        @if($latestOrder->shipping_company)
-                                                            {{ $latestOrder->shipping_company }}<br>
-                                                        @endif
-                                                        {{ $latestOrder->shipping_address_1 }}<br>
-                                                        @if($latestOrder->shipping_address_2)
-                                                            {{ $latestOrder->shipping_address_2 }}<br>
-                                                        @endif
-                                                        @if($latestOrder->shippingCountry && $latestOrder->shippingCountry->code === 'BD')
-                                                            {{ $latestOrder->shippingArea ? $latestOrder->shippingArea->name . ', ' : '' }}
-                                                            {{ $latestOrder->shippingDistrict ? $latestOrder->shippingDistrict->name . ', ' : '' }}
-                                                            {{ $latestOrder->shippingDivision ? $latestOrder->shippingDivision->name : '' }}<br>
-                                                        @else
-                                                            {{ $latestOrder->shipping_city }}, {{ $latestOrder->shipping_state }}<br>
-                                                        @endif
-                                                        {{ $latestOrder->shippingCountry ? $latestOrder->shippingCountry->name : '' }} - {{ $latestOrder->shipping_postcode }}<br>
-                                                        @if($latestOrder->shipping_phone)
-                                                            <i class="icon-phone"></i> {{ $latestOrder->shipping_phone }}
-                                                        @endif
-                                                    </address>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @else
-                                    <p>You have not configured billing or shipping addresses yet. Your addresses will be automatically saved from checkout details when you place an order.</p>
-                                @endif
-                            </div>
-
-                             <!-- 5. Wishlist Tab -->
-                             <div class="tab-pane fade" id="tab-wishlist" role="tabpanel" aria-labelledby="tab-wishlist-link">
-                                 <h3 class="card-title">My Wishlist</h3>
-                                 @if($wishlist->count() > 0)
-                                     <div class="table-responsive">
-                                         <table class="table table-wishlist table-mobile" style="font-size: 1.3rem;">
-                                             <thead>
-                                                 <tr>
-                                                     <th>Product</th>
-                                                     <th>Price</th>
-                                                     <th>Stock Status</th>
-                                                     <th></th>
-                                                     <th></th>
-                                                 </tr>
-                                             </thead>
-                                             <tbody>
-                                                 @foreach ($wishlist as $item)
-                                                 @php
-                                                     $product = $item->product;
-                                                     if (!$product) continue;
-
-                                                     $image = App\Models\ProductImageModel::where('product_id', $product->id)->orderBy('order_by', 'asc')->first();
-                                                     $imageSrc = $image ? $image->getImagesLogo() : null;
-                                                     $slug = $product->slug;
-                                                     $title = $product->product_title;
-
-                                                     $hasSizes = App\Models\ProductSizeModel::where('product_id', $product->id)->exists();
-                                                     $hasColors = App\Models\ProductColorModel::where('product_id', $product->id)->exists();
-                                                     $hasVariations = $hasSizes || $hasColors;
-                                                 @endphp
-                                                 <tr>
-                                                     <td class="product-col">
-                                                         <div class="product">
-                                                             <figure class="product-media">
-                                                                 <a href="{{ url($slug) }}">
-                                                                     <img src="{{ $imageSrc ? $imageSrc : asset('assets/images/products/table/product-1.jpg') }}" alt="{{ $title }}">
-                                                                 </a>
-                                                             </figure>
-                                                             <h3 class="product-title">
-                                                                 <a href="{{ url($slug) }}">{{ $title }}</a>
-                                                             </h3>
-                                                         </div>
-                                                     </td>
-                                                     <td class="price-col">${{ number_format($product->price, 2) }}</td>
-                                                     <td class="stock-col">
-                                                         @if($product->status == 0)
-                                                             <span class="in-stock">In Stock</span>
-                                                         @else
-                                                             <span class="out-of-stock" style="color: red;">Out of Stock</span>
-                                                         @endif
-                                                     </td>
-                                                     <td class="action-col">
-                                                         @if($product->status == 0)
-                                                             @if($hasVariations)
-                                                                 <a href="{{ url($slug) }}" class="btn btn-outline-primary-2 btn-sm">Select Options</a>
-                                                             @else
-                                                                 <form action="{{ url('product/add-to-cart') }}" method="POST" style="margin: 0;">
-                                                                     {{ csrf_field() }}
-                                                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                                                     <input type="hidden" name="quantity" value="1">
-                                                                     <button type="submit" class="btn btn-outline-primary-2 btn-sm">Add to Cart</button>
-                                                                 </form>
-                                                             @endif
-                                                         @else
-                                                             <button class="btn btn-sm btn-outline-primary-2 disabled" disabled>Out of Stock</button>
-                                                         @endif
-                                                     </td>
-                                                     <td class="remove-col">
-                                                         <a href="{{ route('wishlist.remove', $item->id) }}" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                                     </td>
-                                                 </tr>
-                                                 @endforeach
-                                             </tbody>
-                                         </table>
-                                     </div>
-                                 @else
-                                     <p>Your wishlist is currently empty.</p>
-                                     <a href="{{ route('shop') }}" class="btn btn-outline-primary-2"><span>Go Shop</span><i class="icon-long-arrow-right"></i></a>
-                                 @endif
-                             </div>
-
-                            <!-- 6. Coupons Tab -->
-                            <div class="tab-pane fade" id="tab-coupons" role="tabpanel" aria-labelledby="tab-coupons-link">
-                                <h3 class="card-title">Available Coupons</h3>
-                                @if(count($coupons) > 0)
-                                    <div class="table-responsive">
-                                        <table class="table table-wishlist table-mobile" style="font-size: 1.3rem;">
-                                            <thead>
-                                                <tr>
-                                                    <th>Code</th>
-                                                    <th>Discount</th>
-                                                    <th>Min Order</th>
-                                                    <th>Expires</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($coupons as $coupon)
-                                                <tr>
-                                                    <td><strong class="text-primary" style="font-size:1.6rem; letter-spacing:1px;">{{ $coupon->code }}</strong></td>
-                                                    <td>
-                                                        @if($coupon->discount_type === 'percentage')
-                                                            {{ $coupon->discount_value }}% Off
-                                                        @else
-                                                            ${{ number_format($coupon->discount_value, 2) }} Off
-                                                        @endif
-                                                    </td>
-                                                    <td>${{ number_format($coupon->minimum_order_amount, 2) }}</td>
-                                                    <td>{{ $coupon->expires_at ? date('M d, Y', strtotime($coupon->expires_at)) : 'Never' }}</td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @else
-                                    <p>No active coupons available at this time.</p>
-                                @endif
-                            </div>
-
-                            <!-- 7. Reviews Tab -->
-                            <div class="tab-pane fade" id="tab-reviews" role="tabpanel" aria-labelledby="tab-reviews-link">
-                                <p>You have not submitted any product reviews yet.</p>
-                            </div>
-
-                            <!-- 8. Account Details Tab -->
-                            <div class="tab-pane fade" id="tab-account" role="tabpanel" aria-labelledby="tab-account-link">
+                            <!-- 3. Edit Profile Tab -->
+                            <div class="tab-pane fade" id="tab-profile" role="tabpanel" aria-labelledby="tab-profile-link">
                                 <form action="{{ route('user.profile.update') }}" method="POST">
                                     {{ csrf_field() }}
-                                    
                                     <div class="row">
-                                        <div class="col-sm-12">
-                                            <label>Full Name *</label>
-                                            <input type="text" name="name" value="{{ auth()->user()->name }}" class="form-control" required>
+                                        <div class="col-sm-6">
+                                            <label>First Name *</label>
+                                            <input type="text" name="first_name" value="{{ auth()->user()->first_name }}" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <label>Last Name *</label>
+                                            <input type="text" name="last_name" value="{{ auth()->user()->last_name }}" class="form-control" required>
                                         </div>
                                     </div>
 
                                     <label>Email address *</label>
                                     <input type="email" name="email" value="{{ auth()->user()->email }}" class="form-control" required>
 
-                                    <div style="border: 1px solid #ebebeb; padding: 20px; border-radius: 5px; margin-top: 20px; margin-bottom: 20px;">
-                                        <h4 class="mb-3">Password Change (leave blank to leave unchanged)</h4>
-                                        
-                                        <label>Current password</label>
-                                        <input type="password" name="current_password" class="form-control">
+                                    <label>Company Name (Optional)</label>
+                                    <input type="text" name="billing_company" value="{{ auth()->user()->billing_company }}" class="form-control">
 
-                                        <label>New password</label>
-                                        <input type="password" name="new_password" class="form-control">
+                                    <label>Country *</label>
+                                    <select name="billing_country_id" class="form-control" required>
+                                        <option value="">Select Country</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}" {{ auth()->user()->billing_country_id == $country->id ? 'selected' : '' }}>
+                                                {{ $country->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                    <label>Street address *</label>
+                                    <input type="text" name="billing_address_1" value="{{ auth()->user()->billing_address_1 }}" class="form-control" placeholder="House number and street name" required style="margin-bottom: 10px;">
+                                    <input type="text" name="billing_address_2" value="{{ auth()->user()->billing_address_2 }}" class="form-control" placeholder="Apartment, suite, unit etc. (optional)">
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <label>Town / City *</label>
+                                            <input type="text" name="billing_city" value="{{ auth()->user()->billing_city }}" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <label>State *</label>
+                                            <input type="text" name="billing_state" value="{{ auth()->user()->billing_state }}" class="form-control" required>
+                                        </div>
                                     </div>
 
-                                    <button type="submit" class="btn btn-outline-primary-2">
-                                        <span>SAVE CHANGES</span>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <label>Postcode / ZIP *</label>
+                                            <input type="text" name="billing_postcode" value="{{ auth()->user()->billing_postcode }}" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <label>Phone *</label>
+                                            <input type="text" name="billing_phone" value="{{ auth()->user()->billing_phone }}" class="form-control" required>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-outline-primary-2 mt-3">
+                                        <span>Submit</span>
+                                        <i class="icon-long-arrow-right"></i>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- 4. Change Password Tab -->
+                            <div class="tab-pane fade" id="tab-password" role="tabpanel" aria-labelledby="tab-password-link">
+                                <form action="{{ route('user.password.update') }}" method="POST">
+                                    {{ csrf_field() }}
+                                    <label>Current Password *</label>
+                                    <input type="password" name="current_password" class="form-control" required>
+
+                                    <label>New Password *</label>
+                                    <input type="password" name="new_password" class="form-control" required>
+
+                                    <label>Confirm Password *</label>
+                                    <input type="password" name="new_password_confirmation" class="form-control" required>
+
+                                    <button type="submit" class="btn btn-outline-primary-2 mt-3">
+                                        <span>Submit</span>
                                         <i class="icon-long-arrow-right"></i>
                                     </button>
                                 </form>

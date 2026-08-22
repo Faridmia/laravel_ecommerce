@@ -423,6 +423,18 @@ class PaymentController extends Controller
             $orderItem->save();
         }
 
+        // Eager load relations for the invoice email view
+        $order->load(['items.size', 'items.color', 'billingCountry', 'billingDivision', 'billingDistrict', 'billingArea', 'shippingCountry', 'shippingDivision', 'shippingDistrict', 'shippingArea']);
+
+        // Send Invoice Email to Customer
+        if (!empty($order->billing_email)) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($order->billing_email)->send(new \App\Mail\OrderInvoiceMail($order));
+            } catch (\Exception $e) {
+                \Log::error('Order Invoice Email Error: ' . $e->getMessage());
+            }
+        }
+
         Cart::clear();
         session()->forget('coupon');
         session()->forget('shipping_rate');

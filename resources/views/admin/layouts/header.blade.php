@@ -187,40 +187,51 @@
                       <p>Admin</p>
                   </a>
               </li>
-              <li class="nav-item">
-                  <a href="{{ route('admin.category.list') }}"
-                    class="nav-link {{ request()->segment(2) == 'category' ? 'active' : '' }}">
-                      <i class="nav-icon bi bi-tags"></i>
-                      <p>Category</p>
+              <li class="nav-item {{ in_array(request()->segment(2), ['product', 'category', 'subcategory', 'brand', 'color']) ? 'menu-open' : '' }}">
+                  <a href="#" class="nav-link {{ in_array(request()->segment(2), ['product', 'category', 'subcategory', 'brand', 'color']) ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-box-seam"></i>
+                      <p>
+                          Products
+                          <i class="nav-arrow bi bi-chevron-right"></i>
+                      </p>
                   </a>
-              </li>
-              <li class="nav-item">
-                  <a href="{{ route('admin.subcategory.list') }}"
-                    class="nav-link {{ request()->segment(2) == 'subcategory' ? 'active' : '' }}">
-                      <i class="nav-icon bi bi-tags"></i>
-                      <p>Sub Category</p>
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a href="{{ route('admin.product.list') }}"
-                    class="nav-link {{ request()->segment(2) == 'product' ? 'active' : '' }}">
-                      <i class="nav-icon bi bi-tags"></i>
-                      <p>Product</p>
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a href="{{ route('admin.brand.list') }}"
-                    class="nav-link {{ request()->segment(2) == 'brand' ? 'active' : '' }}">
-                      <i class="nav-icon bi bi-tags"></i>
-                      <p>Brand</p>
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a href="{{ route('admin.color.list') }}"
-                    class="nav-link {{ request()->segment(2) == 'color' ? 'active' : '' }}">
-                      <i class="nav-icon bi bi-tags"></i>
-                      <p>Color</p>
-                  </a>
+                  <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                          <a href="{{ route('admin.product.list') }}"
+                            class="nav-link {{ request()->segment(2) == 'product' ? 'active' : '' }}">
+                              <i class="nav-icon bi bi-dot"></i>
+                              <p>Products</p>
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="{{ route('admin.category.list') }}"
+                            class="nav-link {{ request()->segment(2) == 'category' ? 'active' : '' }}">
+                              <i class="nav-icon bi bi-dot"></i>
+                              <p>Category</p>
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="{{ route('admin.subcategory.list') }}"
+                            class="nav-link {{ request()->segment(2) == 'subcategory' ? 'active' : '' }}">
+                              <i class="nav-icon bi bi-dot"></i>
+                              <p>Sub Category</p>
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="{{ route('admin.brand.list') }}"
+                            class="nav-link {{ request()->segment(2) == 'brand' ? 'active' : '' }}">
+                              <i class="nav-icon bi bi-dot"></i>
+                              <p>Brand</p>
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="{{ route('admin.color.list') }}"
+                            class="nav-link {{ request()->segment(2) == 'color' ? 'active' : '' }}">
+                              <i class="nav-icon bi bi-dot"></i>
+                              <p>Color</p>
+                          </a>
+                      </li>
+                  </ul>
               </li>
               <li class="nav-item">
                   <a href="{{ route('admin.coupon.list') }}"
@@ -244,10 +255,119 @@
                   </a>
               </li>
               <li class="nav-item">
+                  <a href="{{ route('admin.reviews.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'reviews' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-star"></i>
+                      <p>Product Reviews</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.page.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'page' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-file-earmark-text"></i>
+                      <p>CMS Pages</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.slider.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'slider' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-images"></i>
+                      <p>Slider</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.partner.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'partner' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-award"></i>
+                      <p>Partners</p>
+                  </a>
+              </li>
+              <li class="nav-item {{ in_array(request()->segment(2), ['blog', 'blog-category', 'blog-comment']) ? 'menu-open' : '' }}">
+                  <a href="#" class="nav-link {{ in_array(request()->segment(2), ['blog', 'blog-category', 'blog-comment']) ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-journal-text"></i>
+                      <p>
+                          Blog
+                          <i class="nav-arrow bi bi-chevron-right"></i>
+                      </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                          <a href="{{ route('admin.blog.list') }}"
+                            class="nav-link {{ request()->segment(2) == 'blog' ? 'active' : '' }}">
+                              <i class="nav-icon bi bi-dot"></i>
+                              <p>Blog List</p>
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="{{ route('admin.blog_category.list') }}"
+                            class="nav-link {{ request()->segment(2) == 'blog-category' ? 'active' : '' }}">
+                              <i class="nav-icon bi bi-dot"></i>
+                              <p>Blog Category</p>
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="{{ route('admin.blog_comment.list') }}"
+                            class="nav-link {{ request()->segment(2) == 'blog-comment' ? 'active' : '' }}">
+                              <i class="nav-icon bi bi-dot"></i>
+                              <p>Comments</p>
+                          </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.team.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'team' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-people-fill"></i>
+                      <p>Team Members</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.testimonial.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'testimonial' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-chat-quote-fill"></i>
+                      <p>Testimonials</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.profile') }}"
+                    class="nav-link {{ request()->segment(2) == 'profile' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-person-fill-gear"></i>
+                      <p>Profile Settings</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.customer.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'customer' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-people"></i>
+                      <p>Customers</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.contact.list') }}"
+                    class="nav-link {{ request()->segment(2) == 'contact' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-envelope-open"></i>
+                      <p>Contact Us</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.home_setting') }}"
+                    class="nav-link {{ request()->segment(2) == 'home-setting' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-house-gear-fill"></i>
+                      <p>Home Setting</p>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="{{ route('admin.system_settings') }}"
+                    class="nav-link {{ request()->segment(2) == 'system-settings' ? 'active' : '' }}">
+                      <i class="nav-icon bi bi-sliders"></i>
+                      <p>System Setting</p>
+                  </a>
+              </li>
+              <li class="nav-item">
                   <a href="{{ route('admin.settings') }}"
                     class="nav-link {{ request()->segment(2) == 'settings' ? 'active' : '' }}">
                       <i class="nav-icon bi bi-gear"></i>
-                      <p>Settings</p>
+                      <p>Checkout Settings</p>
                   </a>
               </li>
               <li class="nav-item">

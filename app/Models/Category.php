@@ -16,6 +16,9 @@ class Category extends Model
         'name',
         'category_slug',
         'status',
+        'is_home',
+        'image',
+        'button_text',
         'meta_title',
         'meta_description',
         'meta_keywords',
@@ -76,11 +79,39 @@ class Category extends Model
         return $this->hasMany( SubCategoryModel::class, 'category_id' )->where('sub_category.status', 0)->where('sub_category.is_deleted', 0)->orderBy('sub_category.name', 'asc');
     }
 
+    public function products()
+    {
+        return $this->hasMany(ProductModel::class, 'category_id')
+            ->where('products.is_delete', 0)
+            ->where('products.status', 0)
+            ->orderBy('products.id', 'desc')
+            ->limit(8);
+    }
+
     public function totalProducts()
     {
         return ProductModel::where('category_id', $this->id)
             ->where('is_delete', 0)
             ->where('status', 0)
             ->count();
+    }
+
+    /**
+     * Get category banner image url.
+     */
+    public function getImageUrl()
+    {
+        if (!empty($this->image) && file_exists(public_path('upload/categories/' . $this->image))) {
+            return asset('upload/categories/' . $this->image);
+        }
+        
+        // Return default theme category banner based on ID or fallback
+        if (file_exists(public_path('assets/images/banners/home/banner-' . $this->id . '.jpg'))) {
+            return asset('assets/images/banners/home/banner-' . $this->id . '.jpg');
+        }
+        
+        // Fallback banner loop (1 to 4)
+        $fallback_id = (($this->id - 1) % 4) + 1;
+        return asset('assets/images/banners/home/banner-' . $fallback_id . '.jpg');
     }
 }

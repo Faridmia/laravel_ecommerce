@@ -26,11 +26,9 @@
                     <li>
                         <a href="#">Links</a>
                         <ul>
-                            <li><a href="tel:#"><i class="icon-phone"></i>Call: +0123 456 789</a></li>
+                            <li><a href="tel:{{ $systemSettings->phone ?? '#' }}"><i class="icon-phone"></i>Call: {{ $systemSettings->phone ?? '+0123 456 789' }}</a></li>
                             <li><a href="{{ route('wishlist') }}"><i class="icon-heart-o"></i>My Wishlist <span>({{ auth()->check() ? \App\Models\WishlistModel::where('user_id', auth()->id())->count() : 0 }})</span></a></li>
                             <li><a href="{{ route('compare') }}"><i class="icon-random"></i>Compare <span>({{ count(session()->get('compare', [])) }})</span></a></li>
-                            <li><a href="{{ route('about') }}">About Us</a></li>
-                            <li><a href="{{ route('contact') }}">Contact Us</a></li>
                             @if(auth()->check())
                                 <li><a href="{{ route('user.dashboard') }}"><i class="icon-user"></i>{{ auth()->user()->name }}</a></li>
                                 <li><a href="{{ route('user.logout') }}"><i class="icon-user"></i>Logout</a></li>
@@ -53,15 +51,15 @@
                 </button>
 
                 <a href="{{ url('/') }}" class="logo">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="Molla Logo" width="105" height="25">
+                    <img src="{{ $systemSettings->getLogoUrl() }}" alt="{{ $systemSettings->website_name ?? 'Molla' }} Logo" width="105" height="25">
                 </a>
 
                 <nav class="main-nav">
                     <ul class="menu sf-arrows">
-                        <li class="active">
+                        <li class="{{ Request::segment(1) == '' ? 'active' : '' }}">
                             <a href="{{ url('/') }}">Home</a>
                         </li>
-                        <li>
+                        <li class="{{ Request::segment(1) == 'shop' ? 'active' : '' }}">
                             <a href="javascript:void(0);" class="sf-with-ul">Shop</a>
 
                             <div class="megamenu megamenu-md">
@@ -88,11 +86,34 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    
                                 </div>
                             </div>
                         </li>
+                        <li class="{{ Request::segment(1) == 'blog' ? 'active' : '' }}">
+                            <a href="{{ url('blog') }}">Blog</a>
+                        </li>
+                        <li class="{{ in_array(Request::segment(1), ['about', 'terms-condition', 'privacy-policy', 'wishlist', 'compare']) ? 'active' : '' }}">
+                            <a href="#" class="sf-with-ul">Pages</a>
+                            <ul>
+                                <li><a href="{{ route('about') }}">About Us</a></li>
+                                <li><a href="{{ route('terms') }}">Terms & Conditions</a></li>
+                                <li><a href="{{ route('privacy') }}">Privacy Policy</a></li>
+                                <li><a href="{{ route('wishlist') }}">My Wishlist</a></li>
+                                <li><a href="{{ route('compare') }}">Compare</a></li>
+                            </ul>
+                        </li>
+                        <li class="{{ Request::segment(1) == 'contact' ? 'active' : '' }}">
+                            <a href="{{ route('contact') }}">Contact Us</a>
+                        </li>
+                        @if(auth()->check())
+                            <li class="{{ Request::segment(1) == 'user' ? 'active' : '' }}">
+                                <a href="{{ route('user.dashboard') }}">My Account</a>
+                            </li>
+                        @else
+                            <li>
+                                <a href="#signin-modal" data-toggle="modal">Login</a>
+                            </li>
+                        @endif
                     </ul>
                 </nav>
             </div>
